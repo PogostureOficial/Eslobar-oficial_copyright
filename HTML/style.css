@@ -1,0 +1,112 @@
+/* Estilos generales */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: white;
+  text-align: center;
+}
+
+/* Hero (sección principal) */
+.hero {
+  padding: 40px 20px;
+  background-color: #222;
+}
+.hero h1 {
+  font-size: 2.5em;
+}
+.hero h1 span {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.selector select {
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 8px;
+  font-size: 1em;
+}
+.planes {
+  margin: 10px 0;
+}
+.planes button {
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1em;
+}
+.estandar {
+  background: gray;
+  color: white;
+}
+.premium {
+  background: purple;
+  color: white;
+}
+.ir {
+  margin-top: 15px;
+  padding: 12px 25px;
+  border-radius: 20px;
+  background: white;
+  color: black;
+  border: none;
+  font-weight: bold;
+}
+
+/* Secciones de info */
+.info {
+  padding: 40px 20px;
+  background-color: #111;
+  text-align: left;
+  max-width: 800px;
+  margin: auto;
+}
+.info h2 {
+  margin-bottom: 10px;
+  color: white;
+}
+
+/* Reseñas */
+.reviews {
+  padding: 30px;
+  background-color: #222;
+}
+.review {
+  background: #333;
+  padding: 15px;
+  margin: 15px auto;
+  border-radius: 10px;
+  max-width: 600px;
+  text-align: left;
+}
+
+/* Footer */
+footer {
+  background-color: black;
+  padding: 30px;
+}
+footer .redes span {
+  font-size: 2em;
+  margin: 0 10px;
+}
+footer nav {
+  margin-top: 15px;
+}
+/* Footer nav links */
+footer nav a {
+  color: white;
+  margin: 0 5px;
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+  padding: 5px 10px;
+  transition: all 0.3s ease; /* transición suave */
+}
+
+/* Fondo degradado al pasar el mouse y cambio de texto */
+footer nav a:hover {
+  background: linear-gradient(90deg, #555, #aaa); /* degradado gris */
+  color: white; /* texto siempre blanco al hover */
+  border-radius: 5px; /* bordes redondeados */
+}
+
