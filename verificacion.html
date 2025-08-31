@@ -98,37 +98,33 @@
 
     <button id="enviarBtn" disabled onclick="verificarCodigo()">Enviar</button>
   </div>
-
   <script>
-    const inputs = document.querySelectorAll('.codigo input');
-    const boton = document.getElementById("enviarBtn");
+  const inputs = document.querySelectorAll('.codigo input');
+  const boton = document.getElementById("enviarBtn");
 
-    // Avanza automáticamente al siguiente input
-    function moverFoco(input, index) {
-      if (input.value.length === 1 && index < inputs.length - 1) {
-        inputs[index + 1].focus();
-      }
-
-      // Activa botón solo si están los 6 completos
-      let completo = true;
-      inputs.forEach(inp => {
-        if (inp.value === "") completo = false;
-      });
-
-      if (completo) {
-        boton.classList.add("activo");
-        boton.disabled = false;
-      } else {
-        boton.classList.remove("activo");
-        boton.disabled = true;
-      }
+  function moverFoco(input, index) {
+    if (input.value.length === 1 && index < inputs.length - 1) {
+      inputs[index + 1].focus();
     }
+    let completo = true;
+    inputs.forEach(inp => { if (inp.value === "") completo = false; });
+    if (completo) { boton.classList.add("activo"); boton.disabled = false; }
+    else { boton.classList.remove("activo"); boton.disabled = true; }
+  }
 
-    function verificarCodigo() {
-      // 🔹 En esta demo, cualquier código pasa
+  function verificarCodigo() {
+    const codigoIngresado = Array.from(inputs).map(inp => inp.value).join("");
+    const codigoReal = localStorage.getItem("codigo_verificacion");
+
+    if (codigoIngresado === codigoReal) {
+      alert("✅ Código correcto, acceso permitido");
       window.location.href = "home.html";
+    } else {
+      alert("❌ Código incorrecto, intente de nuevo");
     }
-  </script>
+  }
+</script>
 </body>
 </html>
+
 
