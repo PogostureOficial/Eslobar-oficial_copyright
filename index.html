@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="style_login.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <div class="login-container">
+    <h1>Iniciar sesión</h1>
+
+    <!-- Número de teléfono -->
+    <input type="text" id="telefono" placeholder="Introduce tu número de teléfono...">
+
+    <!-- Correo electrónico -->
+    <input type="email" id="correo" placeholder="Introduce tu correo electrónico...">
+
+    <!-- Botón dinámico que aparece cuando el usuario escribe -->
+    <button id="btn-enviar" style="display:none;">Enviar</button>
+
+    <!-- Botón Google -->
+    <div id="g_id_onload"
+         data-client_id="681954592440-8435k741g9o7tcfluuvqhkkdr6fulgnv.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="redirect"
+         data-login_uri="https://pogostureoficial.github.io/Eslobar-oficial_copyright/verificacion.html"
+         data-auto_prompt="false">l
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="signin_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
+  </div>
+
+  <script>
+    // Mostrar botón "Enviar" si el usuario escribe algo
+    const correo = document.getElementById("correo");
+    const telefono = document.getElementById("telefono");
+    const btnEnviar = document.getElementById("btn-enviar");
+
+    function validarInputs() {
+      if (correo.value.trim() !== "" || telefono.value.trim() !== "") {
+        btnEnviar.style.display = "block";
+      } else {
+        btnEnviar.style.display = "none";
+      }
+    }
+
+    correo.addEventListener("input", validarInputs);
+    telefono.addEventListener("input", validarInputs);
+
+    // Validar correo antes de enviar
+    btnEnviar.addEventListener("click", () => {
+      if (correo.value.trim() !== "" && !correo.value.endsWith("@gmail.com")) {
+        alert("Debes de colocar un correo electrónico válido");
+      } else {
+        window.location.href = "verificacion.html";
+      }
+    });
+  </script>
+</body>
+</html>
