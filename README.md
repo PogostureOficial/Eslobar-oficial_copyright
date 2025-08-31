@@ -1,1 +1,0 @@
-# Eslobar-oficial_copyright
