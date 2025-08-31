@@ -4,7 +4,82 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verificación</title>
-  <link rel="stylesheet" href="style_login.css">
+  <style>
+    /* Fondo general */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    /* Texto descriptivo */
+    .container p {
+      font-size: 16px;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+
+    /* Inputs del código */
+    .codigo {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .codigo input {
+      width: 45px;
+      height: 55px;
+      background-color: #1a1a1a;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 22px;
+      text-align: center;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .codigo input:focus {
+      outline: none;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Botón */
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background-color: #1a1a1a; /* Estado inactivo */
+      color: #555;
+      transition: all 0.3s ease-in-out;
+    }
+
+    button.activo {
+      background-color: #fff;
+      color: #000;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -12,18 +87,42 @@
     Por favor recuerde revisar su carpeta de Spam</p>
 
     <div class="codigo">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
+      <input type="text" maxlength="1" oninput="moverFoco(this, 0)">
+      <input type="text" maxlength="1" oninput="moverFoco(this, 1)">
+      <input type="text" maxlength="1" oninput="moverFoco(this, 2)">
+      <input type="text" maxlength="1" oninput="moverFoco(this, 3)">
+      <input type="text" maxlength="1" oninput="moverFoco(this, 4)">
+      <input type="text" maxlength="1" oninput="moverFoco(this, 5)">
     </div>
 
-    <button onclick="verificarCodigo()">Enviar</button>
+    <button id="enviarBtn" disabled onclick="verificarCodigo()">Enviar</button>
   </div>
 
   <script>
+    const inputs = document.querySelectorAll('.codigo input');
+    const boton = document.getElementById("enviarBtn");
+
+    // Avanza automáticamente al siguiente input
+    function moverFoco(input, index) {
+      if (input.value.length === 1 && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+
+      // Activa botón solo si están los 6 completos
+      let completo = true;
+      inputs.forEach(inp => {
+        if (inp.value === "") completo = false;
+      });
+
+      if (completo) {
+        boton.classList.add("activo");
+        boton.disabled = false;
+      } else {
+        boton.classList.remove("activo");
+        boton.disabled = true;
+      }
+    }
+
     function verificarCodigo() {
       // 🔹 En esta demo, cualquier código pasa
       window.location.href = "home.html";
