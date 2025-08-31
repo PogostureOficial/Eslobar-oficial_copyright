@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Reportes - Eslobar</title>
+  <link rel="stylesheet" href="style_admin.css">
+</head>
+<body>
+  <header>
+    <h1>Panel de Administración de Reportes</h1>
+  </header>
+
+  <main>
+    <section>
+      <table id="tabla-reportes">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Reporte</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Eslobar</p>
+  </footer>
+
+  <script>
+    // Cargar los reportes desde localStorage
+    const reportes = JSON.parse(localStorage.getItem("reportes")) || [];
+    const tbody = document.querySelector("#tabla-reportes tbody");
+
+    reportes.forEach(r => {
+      const fila = `<tr>
+        <td>${r.usuario}</td>
+        <td>${r.mensaje}</td>
+        <td>${r.fecha}</td>
+      </tr>`;
+      tbody.innerHTML += fila;
+    });
+  </script>
+</body>
+</html>
+

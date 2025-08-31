@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportar Errores - Eslobar</title>
+  <link rel="stylesheet" href="style_reportar.css">
+</head>
+<body>
+  <header>
+    <h1>Reportar Errores</h1>
+  </header>
+
+  <main>
+    <section>
+      <p>Si encontraste un error en la plataforma, por favor repórtalo en el siguiente formulario:</p>
+
+      <!-- Formulario de Reporte -->
+      <form id="form-reporte">
+        <label for="mensaje">Describe el error:</label><br>
+        <textarea id="mensaje" name="mensaje" rows="8" required></textarea><br><br>
+        <button type="submit">Enviar reporte</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Eslobar</p>
+  </footer>
+
+  <script>
+    document.getElementById("form-reporte").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const mensaje = document.getElementById("mensaje").value;
+      const fecha = new Date().toLocaleString();
+
+      // Crear objeto reporte
+      const reporte = {
+        usuario: "Usuario Anónimo", // más adelante lo reemplazamos por login
+        mensaje: mensaje,
+        fecha: fecha
+      };
+
+      // Guardar en localStorage
+      let reportes = JSON.parse(localStorage.getItem("reportes")) || [];
+      reportes.push(reporte);
+      localStorage.setItem("reportes", JSON.stringify(reportes));
+
+      alert("Reporte enviado correctamente ✅");
+      document.getElementById("form-reporte").reset();
+    });
+  </script>
+</body>
+</html>
