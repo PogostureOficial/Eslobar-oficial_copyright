@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("Ze_UcmuGqxNN8zCoU"); // tu public key
+    })();
+  </script>
 
   <style>
     body {
@@ -20,64 +27,73 @@
       color: white;
     }
 
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 40px;
-    }
+    h1 { font-size: 3rem; margin-bottom: 40px; }
 
     .input-box {
-      width: 80%;
-      max-width: 350px;
-      margin: 12px 0;
-      padding: 14px;
-      background: #111;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      outline: none;
-      color: white;
-      font-size: 1rem;
-      text-align: center;
+      width: 80%; max-width: 350px; margin: 12px 0; padding: 14px;
+      background: #111; border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px; outline: none; color: white;
+      font-size: 1rem; text-align: center;
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
       transition: all 0.3s ease-in-out;
     }
-
     .input-box:focus {
       border-color: rgba(255, 255, 255, 0.3);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     }
-
-    .g_id_signin {
-      margin-top: 30px;
-      border-radius: 12px !important;
-      overflow: hidden;
-    }
+    .g_id_signin { margin-top: 30px; border-radius: 12px !important; overflow: hidden; }
   </style>
   <link rel="shortcut icon" href="logo.png" type="image/png">
 </head>
 <body>
   <h1>Iniciar sesión</h1>
 
-  <!-- Inputs minimalistas -->
+  <!-- Inputs -->
   <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
-  <input type="email" class="input-box" placeholder="Introduce tu correo electrónico...">
+  <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
+
+  <!-- Botón normal -->
+  <button onclick="enviarCodigo()" style="margin-top:20px;padding:12px 20px;border-radius:12px;border:none;background:#fff;color:#000;font-weight:bold;cursor:pointer;">
+    Enviar código
+  </button>
 
   <!-- Botón de Google -->
   <div id="g_id_onload"
        data-client_id="681954592440-8435k741g9o7tcfluuvqhkkdr6fulgnv.apps.googleusercontent.com"
        data-callback="handleCredentialResponse"
-       data-auto_prompt="false">
-  </div>
+       data-auto_prompt="false"></div>
 
   <div class="g_id_signin"
-       data-type="standard"
-       data-size="large"
-       data-theme="outline"
-       data-text="signin_with"
-       data-shape="rectangular"
-       data-logo_alignment="left">
-  </div>
+       data-type="standard" data-size="large" data-theme="outline"
+       data-text="signin_with" data-shape="rectangular"
+       data-logo_alignment="left"></div>
 
   <script>
+    function enviarCodigo() {
+      const correo = document.getElementById("correo").value;
+      if (!correo) {
+        alert("Por favor introduce un correo válido.");
+        return;
+      }
+
+      // Generar código aleatorio de 6 dígitos
+      const codigo = Math.floor(100000 + Math.random() * 900000);
+      localStorage.setItem("codigo_verificacion", codigo);
+      localStorage.setItem("correo_usuario", correo);
+
+      // Enviar email con EmailJS
+      emailjs.send("service_nwp6u6j", "template_l73amke", {
+        to_email: correo,
+        codigo: codigo,
+        time: new Date(Date.now() + 15*60000).toLocaleTimeString()
+      }).then(() => {
+        alert("Se ha enviado un código a tu correo.");
+        window.location.href = "verificacion.html";
+      }, (err) => {
+        alert("Error al enviar el correo: " + JSON.stringify(err));
+      });
+    }
+
     function handleCredentialResponse(response) {
       const data = parseJwt(response.credential);
       window.location.href = "verificacion.html"; 
@@ -94,4 +110,3 @@
   </script>
 </body>
 </html>
-
