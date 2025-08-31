@@ -9,48 +9,100 @@ body {
 
 /* Hero (sección principal) */
 .hero {
-  padding: 40px 20px;
+  padding: 60px 20px;
   background-color: #222;
 }
+
 .hero h1 {
-  font-size: 2.5em;
+  font-size: 2.8em;
+  font-weight: bold;
+  margin-bottom: 25px;
 }
+
 .hero h1 span {
   font-weight: bold;
   font-size: 1.2em;
 }
+
+/* Selector */
 .selector select {
-  padding: 10px;
-  margin: 15px 0;
-  border-radius: 8px;
-  font-size: 1em;
+  width: 80%;
+  max-width: 400px;
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 12px;
+  border: 1px solid #444;
+  font-size: 1.2em;
+  text-align: center;
+  background: #1e1e1e;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
+
+/* Botones Estándar y Premium */
 .planes {
-  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
 }
+
 .planes button {
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 10px;
-  border: none;
-  font-size: 1em;
+  flex: 1;
+  max-width: 180px;
+  padding: 15px 25px;
+  border-radius: 15px;
+  border: 2px solid #444;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* espacio entre texto e icono */
 }
+
+/* Estándar */
 .estandar {
-  background: gray;
+  background: #444;
   color: white;
 }
+.estandar:hover {
+  background: #555;
+}
+
+/* Premium */
 .premium {
-  background: purple;
+  background: #5b3fc9;
   color: white;
 }
+.premium:hover {
+  background: #6c4fe0;
+}
+
+/* Icono de corona dentro del botón Premium */
+.premium img.icono-corona {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1); /* asegura que sea blanco */
+}
+
+/* Botón Ir */
 .ir {
-  margin-top: 15px;
-  padding: 12px 25px;
-  border-radius: 20px;
+  margin-top: 25px;
+  padding: 15px 35px;
+  border-radius: 30px;
   background: white;
   color: black;
   border: none;
   font-weight: bold;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.ir:hover {
+  background: #ddd;
 }
 
 /* Secciones de info */
