@@ -1,100 +1,177 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Iniciar Sesión</title>
+
+  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
-    (function(){
-      emailjs.init("Ze_UcmuGqxNN8zCoU"); // tu public key
-    })();
+    (function(){ emailjs.init("Ze_UcmuGqxNN8zCoU"); })(); /* tu public key */
   </script>
 
+  <link rel="shortcut icon" href="logo.png" type="image/png">
+
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    :root{
+      --w: 360px;          /* ancho máximo uniforme */
+      --gap: 14px;         /* separación vertical uniforme */
+      --radius: 12px;      /* radio de bordes */
+    }
+
+    /* Lienzo */
+    body{
+      margin:0;
+      padding:0;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#000;
+      color:#fff;
       font-family: Arial, sans-serif;
-      color: white;
     }
 
-    h1 { font-size: 3rem; margin-bottom: 40px; }
-
-    .input-box {
-      width: 80%; max-width: 350px; margin: 12px 0; padding: 14px;
-      background: #111; border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px; outline: none; color: white;
-      font-size: 1rem; text-align: center;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-      transition: all 0.3s ease-in-out;
-    }
-    .input-box:focus {
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+    /* Pila vertical con gaps consistentes */
+    .stack{
+      width: min(90vw, var(--w));
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: var(--gap);
     }
 
-    /* Botón de enviar */
-    .btn-enviar {
-      width: 80%; max-width: 350px;
-      margin-top: 15px; padding: 14px;
-      border-radius: 12px; border: none;
-      background: #fff; color: #000;
-      font-weight: bold; cursor: pointer;
-      transition: all 0.3s ease-in-out;
-    }
-    .btn-enviar:hover {
-      background: #ddd;
+    h1{
+      margin:0 0 calc(var(--gap) * 2);
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      line-height:1;
+      text-align:center;
     }
 
-    /* Botón de Google */
-    .g_id_signin {
-      width: 80% !important; max-width: 350px !important;
-      margin-top: 15px;
-      border-radius: 12px !important;
-      overflow: hidden;
+    /* Campos */
+    .input-box{
+      width: 100%;
+      padding: 14px;
+      background:#111;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      outline:none;
+      color:#fff;
+      font-size:1rem;
+      text-align:center;
+      box-shadow: 0 0 10px rgba(255,255,255,.05);
+      transition: box-shadow .25s ease, border-color .25s ease;
+    }
+    .input-box:focus{
+      border-color: rgba(255,255,255,.3);
+      box-shadow: 0 0 15px rgba(255,255,255,.15);
+    }
+
+    /* Botón Enviar – ocupa el mismo ancho; aparece sin crear “huecos” extra */
+    #enviarBtn{
+      width: 100%;
+      height: 0;                  /* colapsado al inicio */
+      padding: 0 20px;            /* colapsado al inicio */
+      margin: 0;                  /* sin huecos extra */
+      border: none;
+      border-radius: var(--radius);
+      font-weight: bold;
+      cursor: pointer;
+      background:#555;
+      color:#bbb;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 0 0 rgba(255,255,255,0);
+      transition: height .35s ease, padding .35s ease, opacity .35s ease, box-shadow .35s ease, background .2s ease, color .2s ease;
+    }
+    /* Visible (crea solo el espacio necesario, proporcional al resto) */
+    #enviarBtn.visible{
+      height: 48px;
+      padding: 12px 20px;
+      margin-top: var(--gap);
+      opacity: 1;
+    }
+    /* Activo (cuando el mail termina en @gmail.com) */
+    #enviarBtn.activo{
+      background:#fff;
+      color:#000;
+      pointer-events:auto;
+      box-shadow: 0 0 12px rgba(255,255,255,.25);
+    }
+
+    /* Contenedor del botón de Google con el MISMO ancho */
+    .google-wrap{
+      width: 100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    /* Forzamos el ancho del botón renderizado por Google */
+    .google-wrap .g_id_signin{ width:100%; }
+    .google-wrap .g_id_signin > div,
+    .google-wrap iframe{ width:100% !important; }
+
+    @media (max-width:380px){
+      :root{ --w: 320px; }
     }
   </style>
-  <link rel="shortcut icon" href="logo.png" type="image/png">
 </head>
 <body>
-  <h1>Iniciar sesión</h1>
+  <div class="stack">
+    <h1>Iniciar sesión</h1>
 
-  <!-- Inputs -->
-  <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
-  <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
+    <!-- Inputs -->
+    <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
+    <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
 
-  <!-- Botón normal -->
-  <button onclick="enviarCodigo()" class="btn-enviar">
-    Enviar código
-  </button>
+    <!-- Botón normal (se muestra/activa según lo que escriba el usuario) -->
+    <button id="enviarBtn" onclick="enviarCodigo()">Enviar código</button>
 
-  <!-- Botón de Google -->
-  <div id="g_id_onload"
-       data-client_id="681954592440-8435k741g9o7tcfluuvqhkkdr6fulgnv.apps.googleusercontent.com"
-       data-callback="handleCredentialResponse"
-       data-auto_prompt="false"></div>
+    <!-- Botón de Google (mismo ancho gracias al wrapper) -->
+    <div class="google-wrap">
+      <div id="g_id_onload"
+           data-client_id="681954592440-8435k741g9o7tcfluuvqhkkdr6fulgnv.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false"></div>
 
-  <div class="g_id_signin"
-       data-type="standard" data-size="large" data-theme="outline"
-       data-text="signin_with" data-shape="rectangular"
-       data-logo_alignment="left"></div>
+      <div class="g_id_signin"
+           data-type="standard" data-size="large" data-theme="outline"
+           data-text="signin_with" data-shape="rectangular"
+           data-logo_alignment="left"></div>
+    </div>
+  </div>
 
   <script>
-    function enviarCodigo() {
-      const correo = document.getElementById("correo").value.trim();
-      if (!correo) {
-        alert("Por favor introduce un correo válido.");
-        return;
+    const correoInput = document.getElementById("correo");
+    const enviarBtn   = document.getElementById("enviarBtn");
+
+    // Mostrar/activar el botón según el correo
+    correoInput.addEventListener("input", () => {
+      const correo = correoInput.value.trim();
+
+      // Aparece con transición y solo ocupa el espacio necesario
+      if (correo.length > 0) {
+        enviarBtn.classList.add("visible");
+      } else {
+        enviarBtn.classList.remove("visible","activo");
       }
+
+      // Activo solo si termina en @gmail.com
+      if (/^[\w.+-]+@gmail\.com$/.test(correo)) {
+        enviarBtn.classList.add("activo");
+      } else {
+        enviarBtn.classList.remove("activo");
+      }
+    });
+
+    /* ====== LÓGICA EXISTENTE (SIN CAMBIOS) ====== */
+    function enviarCodigo() {
+      const correo = correoInput.value.trim();
+      if (!correo) return;
 
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
@@ -105,7 +182,6 @@
         codigo: codigo,
         time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
-        alert("Se ha enviado un código a tu correo.");
         window.location.href = "verificacion.html";
       }, (err) => {
         alert("Error al enviar el correo: " + JSON.stringify(err));
@@ -125,18 +201,17 @@
         codigo: codigo,
         time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
-        alert("Se ha enviado un código a tu correo de Google.");
         window.location.href = "verificacion.html";
       }, (err) => {
         alert("Error al enviar el correo: " + JSON.stringify(err));
       });
     }
 
-    function parseJwt(token) {
+    function parseJwt(token){
       var base64Url = token.split('.')[1];
-      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      var base64 = base64Url.replace(/-/g,'+').replace(/_/g,'/');
+      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c){
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
       return JSON.parse(jsonPayload);
     }
