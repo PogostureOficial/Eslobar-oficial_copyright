@@ -18,12 +18,10 @@
 
   <style>
     :root{
-      --w: 360px;          /* ancho máximo uniforme */
-      --gap: 14px;         /* separación vertical uniforme */
-      --radius: 12px;      /* radio de bordes */
+      --w: 360px;
+      --gap: 14px;
+      --radius: 12px;
     }
-
-    /* Lienzo */
     body{
       margin:0;
       padding:0;
@@ -35,8 +33,6 @@
       color:#fff;
       font-family: Arial, sans-serif;
     }
-
-    /* Pila vertical con gaps consistentes */
     .stack{
       width: min(90vw, var(--w));
       display:flex;
@@ -44,15 +40,12 @@
       align-items:center;
       gap: var(--gap);
     }
-
     h1{
       margin:0 0 calc(var(--gap) * 2);
       font-size: clamp(2.2rem, 5vw, 3rem);
       line-height:1;
       text-align:center;
     }
-
-    /* Campos */
     .input-box{
       width: 100%;
       padding: 14px;
@@ -70,13 +63,11 @@
       border-color: rgba(255,255,255,.3);
       box-shadow: 0 0 15px rgba(255,255,255,.15);
     }
-
-    /* Botón Enviar – ocupa el mismo ancho; aparece sin crear “huecos” extra */
     #enviarBtn{
       width: 100%;
-      height: 0;                  /* colapsado al inicio */
-      padding: 0 20px;            /* colapsado al inicio */
-      margin: 0;                  /* sin huecos extra */
+      height: 0;
+      padding: 0 20px;
+      margin: 0;
       border: none;
       border-radius: var(--radius);
       font-weight: bold;
@@ -88,33 +79,25 @@
       box-shadow: 0 0 0 rgba(255,255,255,0);
       transition: height .35s ease, padding .35s ease, opacity .35s ease, box-shadow .35s ease, background .2s ease, color .2s ease;
     }
-    /* Visible (crea solo el espacio necesario, proporcional al resto) */
     #enviarBtn.visible{
       height: 48px;
       padding: 12px 20px;
       margin-top: var(--gap);
       opacity: 1;
     }
-    /* Activo (cuando el mail termina en @gmail.com) */
     #enviarBtn.activo{
       background:#fff;
       color:#000;
       pointer-events:auto;
       box-shadow: 0 0 12px rgba(255,255,255,.25);
     }
-
-    /* Contenedor del botón de Google con el MISMO ancho */
     .google-wrap{
       width: 100%;
       display:flex;
       justify-content:center;
       align-items:center;
     }
-    /* Forzamos el ancho del botón renderizado por Google */
-    .google-wrap .g_id_signin{ width:100%; }
-    .google-wrap .g_id_signin > div,
-    .google-wrap iframe{ width:100% !important; }
-
+    #googleBtn { width:100%; }
     @media (max-width:380px){
       :root{ --w: 320px; }
     }
@@ -128,25 +111,12 @@
     <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
     <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
 
-    <!-- Botón normal (se muestra/activa según lo que escriba el usuario) -->
+    <!-- Botón normal -->
     <button id="enviarBtn" onclick="enviarCodigo()">Enviar código</button>
 
-    <!-- Botón de Google (mismo ancho gracias al wrapper) -->
+    <!-- Botón de Google (se renderiza vía JS para que NO muestre perfil) -->
     <div class="google-wrap">
-      <div id="g_id_onload"
-     data-client_id="681954592440-8435k741g9o7tcfluuvqhkkdr6fulgnv.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse"
-     data-auto_prompt="false"
-     data-auto_select="false"></div>
-
-<div class="g_id_signin"
-     data-type="standard"
-     data-shape="rectangular"
-     data-theme="outline"
-     data-text="signin_with"
-     data-size="large"
-     data-logo_alignment="left"></div>
-
+      <div id="googleBtn"></div>
     </div>
   </div>
 
@@ -154,18 +124,13 @@
     const correoInput = document.getElementById("correo");
     const enviarBtn   = document.getElementById("enviarBtn");
 
-    // Mostrar/activar el botón según el correo
     correoInput.addEventListener("input", () => {
       const correo = correoInput.value.trim();
-
-      // Aparece con transición y solo ocupa el espacio necesario
       if (correo.length > 0) {
         enviarBtn.classList.add("visible");
       } else {
         enviarBtn.classList.remove("visible","activo");
       }
-
-      // Activo solo si termina en @gmail.com
       if (/^[\w.+-]+@gmail\.com$/.test(correo)) {
         enviarBtn.classList.add("activo");
       } else {
@@ -173,11 +138,9 @@
       }
     });
 
-    /* ====== LÓGICA EXISTENTE (SIN CAMBIOS) ====== */
     function enviarCodigo() {
       const correo = correoInput.value.trim();
       if (!correo) return;
-
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
       localStorage.setItem("correo_usuario", correo);
@@ -196,7 +159,6 @@
     function handleCredentialResponse(response) {
       const data = parseJwt(response.credential);
       const correo = data.email;
-
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
       localStorage.setItem("correo_usuario", correo);
@@ -220,8 +182,27 @@
       }).join(''));
       return JSON.parse(jsonPayload);
     }
+
+    /* === RENDER BOTÓN GOOGLE NEUTRO === */
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: "681954592440-8435k741g9o7tcfluuvqhkkdr6fulgnv.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("googleBtn"),
+        {
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          shape: "rectangular",
+          logo_alignment: "left",
+          width: "100%"
+        }
+      );
+      google.accounts.id.disableAutoSelect();
+    };
   </script>
 </body>
 </html>
-
 
