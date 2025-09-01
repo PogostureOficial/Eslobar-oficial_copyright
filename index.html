@@ -25,7 +25,6 @@
       height: 100vh;
       font-family: Arial, sans-serif;
       color: white;
-      overflow: hidden;
     }
 
     h1 { font-size: 3rem; margin-bottom: 40px; }
@@ -43,37 +42,25 @@
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     }
 
-    /* Botón Enviar */
-    #enviarBtn {
-      margin-top: 20px;
-      padding: 12px 20px;
-      border-radius: 12px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      opacity: 0;
-      transform: translateY(-10px);
-      pointer-events: none;
-      background: #555;
-      color: #ccc;
-      transition: all 0.4s ease;
+    /* Botón de enviar */
+    .btn-enviar {
+      width: 80%; max-width: 350px;
+      margin-top: 15px; padding: 14px;
+      border-radius: 12px; border: none;
+      background: #fff; color: #000;
+      font-weight: bold; cursor: pointer;
+      transition: all 0.3s ease-in-out;
     }
-    #enviarBtn.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    #enviarBtn.activo {
-      background: #fff;
-      color: #000;
-      pointer-events: auto;
-      box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    .btn-enviar:hover {
+      background: #ddd;
     }
 
-    .g_id_signin { 
-      margin-top: 30px; 
-      border-radius: 12px !important; 
-      overflow: hidden; 
-      transition: margin-top 0.4s ease; 
+    /* Botón de Google */
+    .g_id_signin {
+      width: 80% !important; max-width: 350px !important;
+      margin-top: 15px;
+      border-radius: 12px !important;
+      overflow: hidden;
     }
   </style>
   <link rel="shortcut icon" href="logo.png" type="image/png">
@@ -85,8 +72,10 @@
   <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
   <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
 
-  <!-- Botón normal oculto al inicio -->
-  <button id="enviarBtn" onclick="enviarCodigo()">Enviar código</button>
+  <!-- Botón normal -->
+  <button onclick="enviarCodigo()" class="btn-enviar">
+    Enviar código
+  </button>
 
   <!-- Botón de Google -->
   <div id="g_id_onload"
@@ -100,33 +89,12 @@
        data-logo_alignment="left"></div>
 
   <script>
-    const correoInput = document.getElementById("correo");
-    const enviarBtn = document.getElementById("enviarBtn");
-    const googleBtn = document.querySelector(".g_id_signin");
-
-    correoInput.addEventListener("input", () => {
-      const correo = correoInput.value.trim();
-
-      // Mostrar botón si empieza a escribir
-      if (correo.length > 0) {
-        enviarBtn.classList.add("visible");
-        googleBtn.style.marginTop = "80px"; // baja suavemente
-      } else {
-        enviarBtn.classList.remove("visible", "activo");
-        googleBtn.style.marginTop = "30px";
-      }
-
-      // Activar solo si termina en @gmail.com
-      if (/^[\w.+-]+@gmail\.com$/.test(correo)) {
-        enviarBtn.classList.add("activo");
-      } else {
-        enviarBtn.classList.remove("activo");
-      }
-    });
-
     function enviarCodigo() {
-      const correo = correoInput.value.trim();
-      if (!correo) return;
+      const correo = document.getElementById("correo").value.trim();
+      if (!correo) {
+        alert("Por favor introduce un correo válido.");
+        return;
+      }
 
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
@@ -137,13 +105,17 @@
         codigo: codigo,
         time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
+        alert("Se ha enviado un código a tu correo.");
         window.location.href = "verificacion.html";
+      }, (err) => {
+        alert("Error al enviar el correo: " + JSON.stringify(err));
       });
     }
 
     function handleCredentialResponse(response) {
       const data = parseJwt(response.credential);
       const correo = data.email;
+
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
       localStorage.setItem("correo_usuario", correo);
@@ -153,7 +125,10 @@
         codigo: codigo,
         time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
+        alert("Se ha enviado un código a tu correo de Google.");
         window.location.href = "verificacion.html";
+      }, (err) => {
+        alert("Error al enviar el correo: " + JSON.stringify(err));
       });
     }
 
@@ -168,6 +143,4 @@
   </script>
 </body>
 </html>
-
-
 
