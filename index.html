@@ -25,6 +25,7 @@
       height: 100vh;
       font-family: Arial, sans-serif;
       color: white;
+      overflow: hidden;
     }
 
     h1 { font-size: 3rem; margin-bottom: 40px; }
@@ -41,7 +42,39 @@
       border-color: rgba(255, 255, 255, 0.3);
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
     }
-    .g_id_signin { margin-top: 30px; border-radius: 12px !important; overflow: hidden; }
+
+    /* Botón Enviar */
+    #enviarBtn {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      background: #555;
+      color: #ccc;
+      transition: all 0.4s ease;
+    }
+    #enviarBtn.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #enviarBtn.activo {
+      background: #fff;
+      color: #000;
+      pointer-events: auto;
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    }
+
+    .g_id_signin { 
+      margin-top: 30px; 
+      border-radius: 12px !important; 
+      overflow: hidden; 
+      transition: margin-top 0.4s ease; 
+    }
   </style>
   <link rel="shortcut icon" href="logo.png" type="image/png">
 </head>
@@ -52,10 +85,8 @@
   <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
   <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
 
-  <!-- Botón normal -->
-  <button onclick="enviarCodigo()" style="margin-top:20px;padding:12px 20px;border-radius:12px;border:none;background:#fff;color:#000;font-weight:bold;cursor:pointer;">
-    Enviar código
-  </button>
+  <!-- Botón normal oculto al inicio -->
+  <button id="enviarBtn" onclick="enviarCodigo()">Enviar código</button>
 
   <!-- Botón de Google -->
   <div id="g_id_onload"
@@ -69,48 +100,60 @@
        data-logo_alignment="left"></div>
 
   <script>
-    function enviarCodigo() {
-      const correo = document.getElementById("correo").value.trim();
-      if (!correo) {
-        alert("Por favor introduce un correo válido.");
-        return;
+    const correoInput = document.getElementById("correo");
+    const enviarBtn = document.getElementById("enviarBtn");
+    const googleBtn = document.querySelector(".g_id_signin");
+
+    correoInput.addEventListener("input", () => {
+      const correo = correoInput.value.trim();
+
+      // Mostrar botón si empieza a escribir
+      if (correo.length > 0) {
+        enviarBtn.classList.add("visible");
+        googleBtn.style.marginTop = "80px"; // baja suavemente
+      } else {
+        enviarBtn.classList.remove("visible", "activo");
+        googleBtn.style.marginTop = "30px";
       }
+
+      // Activar solo si termina en @gmail.com
+      if (/^[\w.+-]+@gmail\.com$/.test(correo)) {
+        enviarBtn.classList.add("activo");
+      } else {
+        enviarBtn.classList.remove("activo");
+      }
+    });
+
+    function enviarCodigo() {
+      const correo = correoInput.value.trim();
+      if (!correo) return;
 
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
       localStorage.setItem("correo_usuario", correo);
 
-      // Enviar email con EmailJS usando la nueva plantilla
       emailjs.send("service_nwp6u6j", "template_l73amke", {
-        email: correo,   // coincide con {{email}}
-        codigo: codigo,   // coincide con {{codigo}}
-        time: new Date(Date.now() + 15*60000).toLocaleTimeString()  // coincide con {{time}}
+        email: correo,
+        codigo: codigo,
+        time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
-        alert("Se ha enviado un código a tu correo.");
         window.location.href = "verificacion.html";
-      }, (err) => {
-        alert("Error al enviar el correo: " + JSON.stringify(err));
       });
     }
 
     function handleCredentialResponse(response) {
       const data = parseJwt(response.credential);
       const correo = data.email;
-
       const codigo = Math.floor(100000 + Math.random() * 900000);
       localStorage.setItem("codigo_verificacion", codigo);
       localStorage.setItem("correo_usuario", correo);
 
-      // Enviar email con EmailJS usando la nueva plantilla
       emailjs.send("service_nwp6u6j", "template_l73amke", {
         email: correo,
         codigo: codigo,
         time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
-        alert("Se ha enviado un código a tu correo de Google.");
         window.location.href = "verificacion.html";
-      }, (err) => {
-        alert("Error al enviar el correo: " + JSON.stringify(err));
       });
     }
 
