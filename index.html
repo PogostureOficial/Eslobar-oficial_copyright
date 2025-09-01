@@ -70,7 +70,7 @@
 
   <script>
     function enviarCodigo() {
-      const correo = document.getElementById("correo").value;
+      const correo = document.getElementById("correo").value.trim(); // Limpiar espacios
       if (!correo) {
         alert("Por favor introduce un correo válido.");
         return;
@@ -81,10 +81,10 @@
       localStorage.setItem("codigo_verificacion", codigo);
       localStorage.setItem("correo_usuario", correo);
 
-      // Enviar email con EmailJS
+      // Enviar email con EmailJS usando nombres exactos de la plantilla
       emailjs.send("service_nwp6u6j", "template_l73amke", {
-        to_email: correo,
-        codigo: codigo,
+        email: correo,               // coincide con {{email}} de la plantilla
+        "código de acceso": codigo,  // coincide con {{código de acceso}} de la plantilla
         time: new Date(Date.now() + 15*60000).toLocaleTimeString()
       }).then(() => {
         alert("Se ha enviado un código a tu correo.");
@@ -96,7 +96,24 @@
 
     function handleCredentialResponse(response) {
       const data = parseJwt(response.credential);
-      window.location.href = "verificacion.html"; 
+      const correo = data.email; // Obtener correo desde el token JWT de Google
+
+      // Generar código aleatorio de 6 dígitos
+      const codigo = Math.floor(100000 + Math.random() * 900000);
+      localStorage.setItem("codigo_verificacion", codigo);
+      localStorage.setItem("correo_usuario", correo);
+
+      // Enviar email con EmailJS
+      emailjs.send("service_nwp6u6j", "template_l73amke", {
+        email: correo,
+        "código de acceso": codigo,
+        time: new Date(Date.now() + 15*60000).toLocaleTimeString()
+      }).then(() => {
+        alert("Se ha enviado un código a tu correo de Google.");
+        window.location.href = "verificacion.html";
+      }, (err) => {
+        alert("Error al enviar el correo: " + JSON.stringify(err));
+      });
     }
 
     function parseJwt(token) {
@@ -110,3 +127,4 @@
   </script>
 </body>
 </html>
+
