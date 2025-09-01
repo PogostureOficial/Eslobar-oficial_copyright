@@ -113,18 +113,21 @@
   }
 
   function verificarCodigo() {
-    const codigoIngresado = Array.from(inputs).map(inp => inp.value).join("");
-    const codigoReal = localStorage.getItem("codigo_verificacion");
+  const codigoIngresado = Array.from(inputs).map(inp => inp.value).join("");
+  const codigoReal = localStorage.getItem("codigo_verificacion");
 
-    if (codigoIngresado === codigoReal) {
-      alert("✅ Código correcto, acceso permitido");
-      window.location.href = "home.html";
-    } else {
-      alert("❌ Código incorrecto, intente de nuevo");
-    }
+  if (codigoIngresado === codigoReal) {
+    localStorage.setItem("sesion_activa", "true"); // marca la sesión como activa
+    alert("✅ Código correcto, acceso permitido");
+    window.location.href = "home.html";
+  } else {
+    alert("❌ Código incorrecto, intente de nuevo");
   }
+}
+
 </script>
 </body>
 </html>
+
 
 
