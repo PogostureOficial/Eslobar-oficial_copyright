@@ -105,10 +105,10 @@
 
       // Enviar email con EmailJS
       emailjs.send("service_nwp6u6j", "template_l73amke", {
-        email: correo,
-        "código de acceso": codigo,
-        time: new Date(Date.now() + 15*60000).toLocaleTimeString()
-      }).then(() => {
+  email: correo,                     // coincide con {{email}}
+  codigo: codigo,                     // coincide con {{codigo}}
+  time: new Date(Date.now() + 15*60000).toLocaleTimeString()  // coincide con {{time}}
+}).then(() => {
         alert("Se ha enviado un código a tu correo de Google.");
         window.location.href = "verificacion.html";
       }, (err) => {
@@ -127,4 +127,5 @@
   </script>
 </body>
 </html>
+
 
