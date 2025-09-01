@@ -91,13 +91,21 @@
       pointer-events:auto;
       box-shadow: 0 0 12px rgba(255,255,255,.25);
     }
-    .google-wrap{
-      width: 100%;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
-    #googleBtn { width:100%; }
+    .google-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* mantiene centrado */
+  align-items: center;
+  margin-top: 14px;
+}
+
+#googleBtn {
+  width: auto !important; /* ancho automático según contenido */
+  min-width: 220px;       /* opcional: mínimo ancho para que se vea bien */
+  max-width: 300px;       /* opcional: máximo ancho */
+  display: block;          /* asegurar que sea un bloque centrable */
+}
+
     @media (max-width:380px){
       :root{ --w: 320px; }
     }
@@ -205,4 +213,5 @@
   </script>
 </body>
 </html>
+
 
