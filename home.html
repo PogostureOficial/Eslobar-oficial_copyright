@@ -21,34 +21,123 @@
       font-weight: bold;
       z-index: 999;
     }
+
+    /* Botones planes */
+    .planes button{
+      padding: 12px 24px;
+      font-weight: bold;
+      margin: 0 8px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.3s ease, background 0.3s ease;
+    }
+    .planes button.seleccionado{
+      opacity: 1;
+    }
+    .planes .estandar.seleccionado{
+      color: #fff;
+      background: #555;
+    }
+    .planes .premium.seleccionado{
+      color: #fff;
+      background: #6c4eff;
+    }
+    .planes .premium img{
+      vertical-align: middle;
+      filter: brightness(1);
+      transition: filter 0.3s ease;
+    }
+
+    /* Botón Ir más ancho */
+    .ir{
+      width: 200px;
+      max-width: 90%;
+      padding: 14px 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: #fff;
+      color: #000;
+      margin-top: 20px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* Selector animado */
+    .selector{
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+    }
+    .selector button{
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #888;
+      background: #111;
+      color: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+    .opciones{
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #222;
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      z-index: 10;
+    }
+    .opciones.show{
+      opacity: 1;
+      max-height: 500px;
+    }
+    .opciones div{
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .opciones div:hover{
+      background: #333;
+    }
   </style>
 </head>
 <body>
-  <!-- Botón de cerrar sesión -->
   <button id="logoutBtn" onclick="cerrarSesion()">Cerrar sesión</button>
 
-  <!-- Sección principal -->
   <section class="hero">
     <h1>Elige una <br><span>materia</span></h1>
 
-    <!-- Selector de materia -->
+    <!-- Selector de materia animado -->
     <div class="selector">
-      <select>
-        <option>Historia</option>
-        <option>Matemáticas</option>
-        <option>Lengua</option>
-      </select>
+      <button id="materiaSeleccionada">Historia</button>
+      <div class="opciones" id="opcionesMateria">
+        <div>Matemáticas (1ro - 3ro)</div>
+        <div>Política</div>
+        <div>S.I.C (Contabilidad)</div>
+        <div>Matemáticas (4to - 6to)</div>
+        <div>Geografía</div>
+        <div>Teoría de las organizaciones</div>
+      </div>
     </div>
 
     <!-- Botones Estándar y Premium -->
     <div class="planes">
-      <button class="estandar">Estandar</button>
+      <button class="estandar seleccionado">Estandar</button>
       <button class="premium"> Premium <img src="corona.png" alt="Corona" class="icono-corona"></button>
     </div>
 
     <!-- Botón Ir -->
     <button class="ir">Ir ➝</button>
   </section>
+
 
   <!-- Sección: ¿Que es Eslobar? -->
   <section class="info">
@@ -129,6 +218,40 @@
       localStorage.removeItem("correo_usuario");
       window.location.href = "index.html";
     }
+
+    // Cambiar selección de planes
+    const btnEstandar = document.querySelector(".planes .estandar");
+    const btnPremium = document.querySelector(".planes .premium");
+
+    btnEstandar.addEventListener("click", ()=>{
+      btnEstandar.classList.add("seleccionado");
+      btnPremium.classList.remove("seleccionado");
+    });
+    btnPremium.addEventListener("click", ()=>{
+      btnPremium.classList.add("seleccionado");
+      btnEstandar.classList.remove("seleccionado");
+    });
+
+    // Selector de materia animado
+    const btnMateria = document.getElementById("materiaSeleccionada");
+    const opciones = document.getElementById("opcionesMateria");
+
+    btnMateria.addEventListener("click", ()=>{
+      opciones.classList.toggle("show");
+      // Filtrar la opción ya seleccionada
+      Array.from(opciones.children).forEach(div=>{
+        div.style.display = (div.textContent === btnMateria.textContent) ? "none" : "block";
+      });
+    });
+
+    Array.from(opciones.children).forEach(div=>{
+      div.addEventListener("click", ()=>{
+        btnMateria.textContent = div.textContent;
+        opciones.classList.remove("show");
+      });
+    });
   </script>
 </body>
 </html>
+
+
