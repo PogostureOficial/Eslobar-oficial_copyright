@@ -67,23 +67,24 @@
     }
 
     /* Selector animado */
-    .selector{
-      position: relative;
-      width: 100%;
-      max-width: 300px;
-    }
-  /* Botón principal del selector centrado */
-.selector button{
+    /* Botón principal del selector centrado */
+.selector {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;   /* esto centra el contenedor completo */
+}
+.selector button {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #888;
   background: #111;
   color: #fff;
-  text-align: center;   /* antes estaba "left" */
+  text-align: center;   /* ahora el texto queda centrado */
   cursor: pointer;
-  margin: 0 auto;       /* lo centra horizontalmente */
-  display: block;       /* asegura que el botón se comporte como bloque */
+  display: block;
+  margin: 0 auto;
 }
 
 /* Opciones desplegables con fondo gris */
@@ -122,7 +123,7 @@
 
     <!-- Selector de materia animado -->
     <div class="selector">
-      <button id="materiaSeleccionada">Historia</button>
+      <button id="materiaSeleccionada">Selecciona una materia...</button>
       <div class="opciones" id="opcionesMateria">
         <div>Matemáticas (1ro - 3ro)</div>
         <div>Política</div>
@@ -130,6 +131,7 @@
         <div>Matemáticas (4to - 6to)</div>
         <div>Geografía</div>
         <div>Teoría de las organizaciones</div>
+        <div>Historia</div>
       </div>
     </div>
 
@@ -258,6 +260,7 @@
   </script>
 </body>
 </html>
+
 
 
 
