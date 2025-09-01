@@ -92,19 +92,19 @@
       box-shadow: 0 0 12px rgba(255,255,255,.25);
     }
     .google-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center; /* mantiene centrado */
-  align-items: center;
-  margin-top: 14px;
-}
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 14px;
+    }
 
-#googleBtn {
-  width: auto !important; /* ancho automático según contenido */
-  min-width: 220px;       /* opcional: mínimo ancho para que se vea bien */
-  max-width: 300px;       /* opcional: máximo ancho */
-  display: block;          /* asegurar que sea un bloque centrable */
-}
+    #googleBtn {
+      width: auto !important;
+      min-width: 220px;
+      max-width: 300px;
+      display: block;
+    }
 
     @media (max-width:380px){
       :root{ --w: 320px; }
@@ -122,13 +122,18 @@
     <!-- Botón normal -->
     <button id="enviarBtn" onclick="enviarCodigo()">Enviar código</button>
 
-    <!-- Botón de Google (se renderiza vía JS para que NO muestre perfil) -->
+    <!-- Botón de Google -->
     <div class="google-wrap">
       <div id="googleBtn"></div>
     </div>
   </div>
 
   <script>
+    // Si ya hay sesión activa, redirigir a home.html
+    if(localStorage.getItem("sesion_activa") === "true"){
+      window.location.href = "home.html";
+    }
+
     const correoInput = document.getElementById("correo");
     const enviarBtn   = document.getElementById("enviarBtn");
 
@@ -213,5 +218,3 @@
   </script>
 </body>
 </html>
-
-
