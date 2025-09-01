@@ -6,8 +6,27 @@
   <title>Eslobar</title>
   <link rel="stylesheet" href="style.css">
   <link rel="shortcut icon" href="logo.png" type="image/png">
+  <style>
+    /* Botón de cerrar sesión */
+    #logoutBtn{
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 999;
+    }
+  </style>
 </head>
 <body>
+  <!-- Botón de cerrar sesión -->
+  <button id="logoutBtn" onclick="cerrarSesion()">Cerrar sesión</button>
+
   <!-- Sección principal -->
   <section class="hero">
     <h1>Elige una <br><span>materia</span></h1>
@@ -25,7 +44,6 @@
     <div class="planes">
       <button class="estandar">Estandar</button>
       <button class="premium"> Premium <img src="corona.png" alt="Corona" class="icono-corona"></button>
-
     </div>
 
     <!-- Botón Ir -->
@@ -82,24 +100,35 @@
 
   <!-- Footer -->
   <footer>
-  <h2>Seguir a Pogosture</h2>
-  <div class="redes">
-    <span>📺</span>
-    <span>📸</span>
-    <span>🎵</span>
-    <span>🎮</span>
-    <span>💬</span>
-  </div>
-  <nav>
-    <!-- Cambio: ahora apunta a terminos.html -->
-    <a href="terminos.html">Términos y condiciones</a> |
-    <a href="#">Contáctanos</a> |
-    <a href="#">Preguntas frecuentes</a> |
-    <a href="#">¿Quién es Pogosture?</a> |
-    <a href="reportar.html">Reportar errores</a>
-  </nav>
-</footer>
+    <h2>Seguir a Pogosture</h2>
+    <div class="redes">
+      <span>📺</span>
+      <span>📸</span>
+      <span>🎵</span>
+      <span>🎮</span>
+      <span>💬</span>
+    </div>
+    <nav>
+      <a href="terminos.html">Términos y condiciones</a> |
+      <a href="#">Contáctanos</a> |
+      <a href="#">Preguntas frecuentes</a> |
+      <a href="#">¿Quién es Pogosture?</a> |
+      <a href="reportar.html">Reportar errores</a>
+    </nav>
+  </footer>
+
+  <script>
+    // Verificar sesión activa
+    if(localStorage.getItem("sesion_activa") !== "true"){
+      window.location.href = "index.html";
+    }
+
+    function cerrarSesion(){
+      localStorage.removeItem("sesion_activa");
+      localStorage.removeItem("codigo_verificacion");
+      localStorage.removeItem("correo_usuario");
+      window.location.href = "index.html";
+    }
+  </script>
 </body>
 </html>
-
-
