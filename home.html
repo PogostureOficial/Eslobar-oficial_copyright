@@ -293,9 +293,19 @@
         opciones.classList.remove("show");
       });
     });
+
+// Mostrar perfil de usuario
+const userEmail = localStorage.getItem("correo_usuario") || "Usuario";
+const userAvatar = localStorage.getItem("foto_usuario");
+
+document.getElementById("userEmail").textContent = userEmail;
+document.getElementById("userAvatar").src = userAvatar ? userAvatar : "default.png"; 
+// "default.png" es opcional, podés poner un ícono por defecto si no hay avatar
+
   </script>
 </body>
 </html>
+
 
 
 
