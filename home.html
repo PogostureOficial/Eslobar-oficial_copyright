@@ -21,13 +21,11 @@
       font-weight: bold;
       z-index: 999;
     }
-
-<!-- Perfil de usuario -->
-<div id="userProfile">
+    
+<div id="userProfile" aria-live="polite">
   <img id="userAvatar" src="" alt="Avatar usuario">
-  <span id="userEmail"></span>
+  <span id="userEmail">Usuario</span>
 </div>
-
 
     /* Botones planes */
     .planes button{
@@ -121,34 +119,37 @@
       background: #444;
     }
 
-    /* Perfil de usuario arriba a la izquierda */
+   /* PERFIL: arriba a la izquierda */
 #userProfile {
   position: fixed;
   top: 10px;
   left: 10px;
-  display: flex;
+  display: none;              /* oculto hasta rellenar */
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
   padding: 6px 12px;
   border-radius: 12px;
   z-index: 999;
+  backdrop-filter: blur(4px);
 }
-
 #userProfile img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #fff;
+  border: 2px solid rgba(255,255,255,0.12);
 }
-
 #userProfile span {
   color: #fff;
-  font-weight: bold;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
+    
   </style>
 </head>
 <body>
@@ -302,9 +303,56 @@ document.getElementById("userEmail").textContent = userEmail;
 document.getElementById("userAvatar").src = userAvatar ? userAvatar : "default.png"; 
 // "default.png" es opcional, podés poner un ícono por defecto si no hay avatar
 
+    // RELLENA Y MUESTRA PERFIL (robusto: espera DOM)
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const profileEl = document.getElementById('userProfile');
+    const avatarEl  = document.getElementById('userAvatar');
+    const emailEl   = document.getElementById('userEmail');
+
+    const sesion = localStorage.getItem('sesion_activa');
+    const correo = localStorage.getItem('correo_usuario');
+    let   foto   = localStorage.getItem('foto_usuario');
+
+    // Si no hay sesión activa, el resto de tu código ya redirige. Para debug puedes comentar esa redirección temporalmente.
+    if (sesion !== 'true') {
+      console.warn('Sesión no activa (sesion_activa !== "true"). Si estás probando, asegúrate de verificar el código primero.');
+      // NO redirigimos aquí (tu script ya lo hace arriba); solo mostramos advertencia.
+    }
+
+    if (!correo) {
+      console.warn('No hay correo guardado en localStorage (correo_usuario).');
+      return; // no continuamos porque no hay datos para mostrar
+    }
+
+    // Si no hay foto guardada, generamos avatar SVG (inicial + color) y lo guardamos
+    if (!foto) {
+      const inicial = (correo.charAt(0) || 'U').toUpperCase();
+      const colores = ["#FF5733","#33C1FF","#28A745","#FFC300","#9B59B6","#E67E22"];
+      const color = colores[Math.floor(Math.random() * colores.length)];
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+        <circle cx="50" cy="50" r="50" fill="${color}" />
+        <text x="50%" y="55%" font-size="50" text-anchor="middle" fill="white" font-family="Arial" dy=".3em">${inicial}</text>
+      </svg>`;
+      foto = "data:image/svg+xml;base64," + btoa(svg);
+      localStorage.setItem('foto_usuario', foto);
+    }
+
+    // Rellenar elementos y mostrar contenedor
+    emailEl.textContent = correo;
+    avatarEl.src = foto;
+    profileEl.style.display = 'flex';
+
+  } catch (err) {
+    console.error('Error al cargar perfil:', err);
+  }
+});
+
+
   </script>
 </body>
 </html>
+
 
 
 
