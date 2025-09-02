@@ -170,11 +170,14 @@
     }
 
     function handleCredentialResponse(response) {
-      const data = parseJwt(response.credential);
-      const correo = data.email;
-      const codigo = Math.floor(100000 + Math.random() * 900000);
-      localStorage.setItem("codigo_verificacion", codigo);
-      localStorage.setItem("correo_usuario", correo);
+  const data = parseJwt(response.credential);
+  const correo = data.email;
+  const foto = data.picture; // FOTO REAL DEL PERFIL GOOGLE
+
+  // Guardamos correo y foto
+  localStorage.setItem("correo_usuario", correo);
+  localStorage.setItem("foto_usuario", foto);
+  localStorage.setItem("sesion_activa", "true");
 
       emailjs.send("service_nwp6u6j", "template_l73amke", {
         email: correo,
@@ -218,3 +221,4 @@
   </script>
 </body>
 </html>
+
