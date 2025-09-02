@@ -21,11 +21,7 @@
       font-weight: bold;
       z-index: 999;
     }
-    
-<div id="userProfile" aria-live="polite">
-  <img id="userAvatar" src="" alt="Avatar usuario">
-  <span id="userEmail">Usuario</span>
-</div>
+  
 
     /* Botones planes */
     .planes button{
@@ -155,6 +151,11 @@
 <body>
   <button id="logoutBtn" onclick="cerrarSesion()">Cerrar sesión</button>
 
+  <div id="userProfile" aria-live="polite">
+  <img id="userAvatar" src="" alt="Avatar usuario">
+  <span id="userEmail">Usuario</span>
+</div>
+  
   <section class="hero">
     <h1>Elige una <br><span>materia</span></h1>
 
@@ -299,10 +300,6 @@
 const userEmail = localStorage.getItem("correo_usuario") || "Usuario";
 const userAvatar = localStorage.getItem("foto_usuario");
 
-document.getElementById("userEmail").textContent = userEmail;
-document.getElementById("userAvatar").src = userAvatar ? userAvatar : "default.png"; 
-// "default.png" es opcional, podés poner un ícono por defecto si no hay avatar
-
     // RELLENA Y MUESTRA PERFIL (robusto: espera DOM)
 document.addEventListener('DOMContentLoaded', () => {
   try {
@@ -352,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
