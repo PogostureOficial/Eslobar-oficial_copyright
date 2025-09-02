@@ -120,6 +120,35 @@
     .opciones div:hover{
       background: #444;
     }
+
+    /* Perfil de usuario arriba a la izquierda */
+#userProfile {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.1);
+  padding: 6px 12px;
+  border-radius: 12px;
+  z-index: 999;
+}
+
+#userProfile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+#userProfile span {
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
   </style>
 </head>
 <body>
@@ -267,6 +296,7 @@
   </script>
 </body>
 </html>
+
 
 
 
