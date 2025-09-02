@@ -145,16 +145,99 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+    /* Contenedor del perfil (botón principal) */
+#userProfile {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  padding: 6px 12px;
+  border-radius: 12px;
+  z-index: 999;
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+#userProfile:hover {
+  background: rgba(255,255,255,0.12);
+}
+#userProfile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.12);
+}
+#userProfile span {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dropdown para cerrar sesión */
+#logoutDropdown {
+  position: fixed;
+  top: 60px; /* debajo del perfil */
+  left: 10px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: max-height 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+  z-index: 998;
+}
+
+/* Cuando está visible */
+#logoutDropdown.show {
+  max-height: 100px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Botón cerrar sesión dentro del dropdown */
+#logoutDropdown button {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+#logoutDropdown button:hover {
+  background: #eee;
+}
+
     
   </style>
 </head>
 <body>
   <button id="logoutBtn" onclick="cerrarSesion()">Cerrar sesión</button>
 
-  <div id="userProfile" aria-live="polite">
+  <!-- Botón de perfil (toggle dropdown) -->
+<div id="userProfile" aria-live="polite">
   <img id="userAvatar" src="" alt="Avatar usuario">
   <span id="userEmail">Usuario</span>
 </div>
+
+<!-- Dropdown oculto -->
+<div id="logoutDropdown">
+  <button onclick="cerrarSesion()">Cerrar sesión</button>
+</div>
+
   
   <section class="hero">
     <h1>Elige una <br><span>materia</span></h1>
@@ -345,10 +428,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Toggle dropdown del perfil
+const userProfile = document.getElementById("userProfile");
+const logoutDropdown = document.getElementById("logoutDropdown");
+
+userProfile.addEventListener("click", () => {
+  logoutDropdown.classList.toggle("show");
+});
+
+// Cerrar dropdown si se hace click fuera
+document.addEventListener("click", (e) => {
+  if (!userProfile.contains(e.target) && !logoutDropdown.contains(e.target)) {
+    logoutDropdown.classList.remove("show");
+  }
+});
 
   </script>
 </body>
 </html>
+
 
 
 
