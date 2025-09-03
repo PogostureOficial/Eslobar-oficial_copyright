@@ -221,6 +221,21 @@
   background: #eee;
 }
 
+    /* Ocultar inicialmente planes e ir */
+.planes, .ir {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none; /* que no se puedan clickear ocultos */
+}
+
+/* Cuando aparecen */
+.planes.visible, .ir.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
     
   </style>
 </head>
@@ -446,6 +461,7 @@ document.addEventListener("click", (e) => {
   </script>
 </body>
 </html>
+
 
 
 
