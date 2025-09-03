@@ -388,11 +388,16 @@
     });
 
     Array.from(opciones.children).forEach(div=>{
-      div.addEventListener("click", ()=>{
-        btnMateria.textContent = div.textContent;
-        opciones.classList.remove("show");
-      });
-    });
+  div.addEventListener("click", ()=>{
+    btnMateria.textContent = div.textContent;
+    opciones.classList.remove("show");
+
+    // Mostrar botones con animación
+    document.querySelector(".planes").classList.add("visible");
+    document.querySelector(".ir").classList.add("visible");
+  });
+});
+
 
 // Mostrar perfil de usuario
 const userEmail = localStorage.getItem("correo_usuario") || "Usuario";
@@ -461,6 +466,7 @@ document.addEventListener("click", (e) => {
   </script>
 </body>
 </html>
+
 
 
 
