@@ -230,14 +230,15 @@
 }
 
 /* Cuando aparecen */
-.planes.visible, .ir.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+/* Forzar que al estar visible realmente se muestre */
+.planes.visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  pointer-events: auto !important;
+  display: flex !important;
 }
 
-    
-  </style>
+ </style>
 </head>
 <body>
   
@@ -466,6 +467,7 @@ document.addEventListener("click", (e) => {
   </script>
 </body>
 </html>
+
 
 
 
