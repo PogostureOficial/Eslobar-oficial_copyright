@@ -325,9 +325,30 @@ telefonoInput.addEventListener("input", () => {
       );
       google.accounts.id.disableAutoSelect();
     };
-  </script>
+
+    <script>
+  const phoneInput = document.getElementById("phone-number");
+  const countryCode = document.getElementById("country-code");
+
+  phoneInput.addEventListener("input", () => {
+    let value = phoneInput.value.replace(/\D/g, ""); // solo números
+
+    // formato básico: primer dígito - 3 dígitos - 3 dígitos - resto
+    let formatted = value
+      .replace(/^(\d{1})(\d{0,3})(\d{0,3})(\d{0,4}).*/, (match, g1, g2, g3, g4) => {
+        let out = g1;
+        if (g2) out += " " + g2;
+        if (g3) out += " " + g3;
+        if (g4) out += "-" + g4;
+        return out;
+      });
+
+    phoneInput.value = formatted;
+  });
+</script>
 </body>
 </html>
+
 
 
 
