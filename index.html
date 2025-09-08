@@ -139,7 +139,24 @@
     <h1>Iniciar sesión</h1>
 
     <!-- Inputs -->
-    <input type="text" class="input-box" placeholder="Introduce tu número de teléfono...">
+    <div class="login-phone">
+  <select id="country-code">
+    <option value="+54">🇦🇷 +54</option>
+    <option value="+34">🇪🇸 +34</option>
+    <option value="+1">🇺🇸 +1</option>
+    <option value="+52">🇲🇽 +52</option>
+    <!-- Agrega más países -->
+  </select>
+  <input 
+    type="tel" 
+    id="phone-number" 
+    placeholder="Introduce tu número de teléfono..." 
+    pattern="[0-9]*" 
+    inputmode="numeric"
+    required
+  />
+</div>
+
     <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
 
     <!-- Botón normal -->
@@ -268,6 +285,7 @@
   </script>
 </body>
 </html>
+
 
 
 
