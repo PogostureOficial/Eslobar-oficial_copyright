@@ -354,9 +354,77 @@
         telefonoInput.dispatchEvent(new Event('input'));
       });
     });
+
+    <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.10.27/bundle/libphonenumber-max.js"></script>
+
+    <script>
+    /* Formatea el teléfono según el país seleccionado usando libphonenumber-js.
+       Pegar esto después de cargar libphonenumber-max.js y después de que el DOM exista.
+    */
+    document.addEventListener('DOMContentLoaded', () => {
+      const phoneInput = document.getElementById('telefono') || document.getElementById('phone-number');
+      const countrySelect = document.getElementById('country-code');
+
+      if (!phoneInput || !countrySelect) return;
+
+      // helper: obtener ISO desde el option seleccionado
+      function getSelectedISO() {
+        const opt = countrySelect.options[countrySelect.selectedIndex];
+        return opt && opt.dataset && opt.dataset.iso ? opt.dataset.iso : undefined;
+      }
+
+      // formatea al escribir (usa AsYouType si la librería está disponible)
+      function formatAsYouType(value) {
+        // permitimos + al inicio, pero eliminamos demás no dígitos
+        const cleaned = value.replace(/[^\d\+]/g, '');
+        const iso = getSelectedISO();
+
+        if (window.libphonenumber && libphonenumber.AsYouType) {
+          try {
+            // Si tenemos ISO usamos la versión local, si no, intentamos sin país
+            const ayt = iso ? new libphonenumber.AsYouType(iso) : new libphonenumber.AsYouType();
+            return ayt.input(cleaned);
+          } catch (e) {
+            // fallback simple si algo falla
+          }
+        }
+
+        // Fallback muy simple (no país): 1 - 3 - 3 - 4 (ej. 9 223 546-7889)
+        return cleaned
+          .replace(/^(\+?)(\d{1})(\d{0,3})(\d{0,3})(\d{0,4}).*/, (_, plus, g1, g2, g3, g4) => {
+            let out = (plus ? '+' + g1 : g1 || '');
+            if (g2) out += ' ' + g2;
+            if (g3) out += ' ' + g3;
+            if (g4) out += '-' + g4;
+            return out;
+          });
+      }
+
+      // Mantener caret simple: ponemos el cursor al final (evitamos lógica de caret compleja)
+      function setToEnd(el) {
+        try { el.setSelectionRange(el.value.length, el.value.length); }
+        catch (e) { /* ignore */ }
+      }
+
+      phoneInput.addEventListener('input', (e) => {
+        const before = phoneInput.value;
+        const formatted = formatAsYouType(before);
+        phoneInput.value = formatted;
+        setToEnd(phoneInput);
+      });
+
+      // Re-formatear si cambia el país (útil si el usuario ya escribió número)
+      countrySelect.addEventListener('change', () => {
+        phoneInput.dispatchEvent(new Event('input'));
+      });
+    });
+    </script>
+
+
   </script>
 </body>
 </html>
+
 
 
 
