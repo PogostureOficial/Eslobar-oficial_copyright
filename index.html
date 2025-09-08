@@ -62,29 +62,35 @@
     .input-box:focus{
       border-color: rgba(255,255,255,.3);
       box-shadow: 0 0 15px rgba(255,255,255,.15);
-    }
-
-    .login-phone {
+    } 
+    
+.phone-box {
+  width: 100%;
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 8px;
 }
 
-.login-phone select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+.phone-box select {
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.1);
+  background: #111;
+  color: #fff;
   font-size: 1rem;
+  outline: none;
+  box-shadow: 0 0 10px rgba(255,255,255,.05);
+  transition: box-shadow .25s ease, border-color .25s ease;
 }
 
-.login-phone input {
+.phone-box select:focus {
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 0 15px rgba(255,255,255,.15);
+}
+
+.phone-box input {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
 }
+
 
     #enviarBtn{
       width: 100%;
@@ -265,6 +271,7 @@
   </script>
 </body>
 </html>
+
 
 
 
