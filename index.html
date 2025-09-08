@@ -138,30 +138,56 @@
     @media (max-width:380px){
       :root{ --w: 320px; }
     }
+
+    .phone-row{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.phone-row .cc{
+  padding:14px; /* igual que .input-box */
+  background:#111;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius);
+  color:#fff;
+  font-size:1rem;
+  outline:none;
+  box-shadow: 0 0 10px rgba(255,255,255,.05);
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+
+.phone-row .cc:focus{
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 0 15px rgba(255,255,255,.15);
+}
+
   </style>
 </head>
 <body>
   <div class="stack">
     <h1>Iniciar sesión</h1>
 
-    <!-- Inputs -->
-    <div class="login-phone">
-  <select id="country-code">
+   <div class="phone-row">
+  <select id="country-code" class="cc">
     <option value="+54">🇦🇷 +54</option>
     <option value="+34">🇪🇸 +34</option>
     <option value="+1">🇺🇸 +1</option>
     <option value="+52">🇲🇽 +52</option>
-    <!-- Agrega más países -->
   </select>
-  <input 
-    type="tel" 
-    id="phone-number" 
-    placeholder="Introduce tu número de teléfono..." 
-    pattern="[0-9]*" 
+
+  <input
+    type="tel"
+    id="telefono"
+    class="input-box"
+    placeholder="Introduce tu número de teléfono..."
     inputmode="numeric"
-    required
+    pattern="[0-9]*"
+    maxlength="15"
   />
 </div>
+
 
     <input type="email" id="correo" class="input-box" placeholder="Introduce tu correo electrónico...">
 
@@ -271,6 +297,7 @@
   </script>
 </body>
 </html>
+
 
 
 
