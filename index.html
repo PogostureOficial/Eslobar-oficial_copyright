@@ -143,17 +143,15 @@
   width:100%;
   display:flex;
   align-items:center;
-  gap:8px;
 }
 
 .phone-row .cc{
   padding:14px; /* igual que .input-box */
   background:#111;
   border:1px solid rgba(255,255,255,.1);
-  border-radius: var(--radius);
-  min-width: 80px;   /* un poquito más ancho el select */
-  max-width: 100px;
-  border-radius: 12px 0 0 12px;
+  border-radius: 12px 0 0 12px; /* esquinas izquierdas */
+  min-width: 90px;   /* un poquito más ancho el select */
+  max-width: 110px;
   color:#fff;
   font-size:1rem;
   outline:none;
@@ -161,12 +159,26 @@
   transition: box-shadow .25s ease, border-color .25s ease;
 }
 
+.phone-row input{
+  flex: 1; /* este es el que ocupa todo el espacio */
+  padding:14px;
+  background:#111;
+  border:1px solid rgba(255,255,255,.1);
+  border-left:none; /* elimina doble borde entre select y input */
+  border-radius: 0 12px 12px 0; /* esquinas derechas */
+  color:#fff;
+  font-size:1rem;
+  outline:none;
+  box-shadow: 0 0 10px rgba(255,255,255,.05);
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+
+.phone-row input:focus,
 .phone-row .cc:focus{
-  flex: 1; 
-  border-radius: 0 12px 12px 0;
   border-color: rgba(255,255,255,.3);
   box-shadow: 0 0 15px rgba(255,255,255,.15);
 }
+
 
   </style>
 </head>
@@ -316,6 +328,7 @@ telefonoInput.addEventListener("input", () => {
   </script>
 </body>
 </html>
+
 
 
 
