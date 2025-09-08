@@ -63,6 +63,29 @@
       border-color: rgba(255,255,255,.3);
       box-shadow: 0 0 15px rgba(255,255,255,.15);
     }
+
+    .login-phone {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.login-phone select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.login-phone input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
     #enviarBtn{
       width: 100%;
       height: 0;
@@ -126,6 +149,26 @@
     <div class="google-wrap">
       <div id="googleBtn"></div>
     </div>
+
+    <!-- Inicio de sesión con número de teléfono -->
+<div class="login-phone">
+  <select id="country-code">
+    <option value="+54">🇦🇷 +54</option>
+    <option value="+34">🇪🇸 +34</option>
+    <option value="+1">🇺🇸 +1</option>
+    <option value="+52">🇲🇽 +52</option>
+    <!-- Agrega más países según necesites -->
+  </select>
+  <input 
+    type="tel" 
+    id="phone-number" 
+    placeholder="Número de teléfono" 
+    pattern="[0-9]*" 
+    inputmode="numeric"
+    required
+  />
+</div>
+
   </div>
 
   <script>
@@ -225,5 +268,6 @@
   </script>
 </body>
 </html>
+
 
 
