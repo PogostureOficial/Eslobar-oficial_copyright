@@ -145,18 +145,26 @@
   align-items:center;
 }
 
-.phone-row .cc{
-  padding:14px; /* igual que .input-box */
-  background:#111;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius: 12px 0 0 12px; /* esquinas izquierdas */
-  min-width: 90px;   /* un poquito más ancho el select */
+.phone-row .cc {
+  padding: 14px;
+  background: #111;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 12px 0 0 12px;
+  min-width: 90px;
   max-width: 110px;
-  color:#fff;
-  font-size:1rem;
-  outline:none;
-  box-shadow: 0 0 10px rgba(255,255,255,.05);
-  transition: box-shadow .25s ease, border-color .25s ease;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 0 15px rgba(255,255,255,.1);
+  transition: all 0.3s ease; /* transiciones suaves */
+  -webkit-appearance: none; /* quita estilo nativo de select en Safari/Chrome */
+  -moz-appearance: none; /* quita estilo nativo en Firefox */
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="white"><polygon points="0,0 12,0 6,6"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px 12px;
+  cursor: pointer;
 }
 
 .phone-row input{
@@ -174,9 +182,10 @@
 }
 
 .phone-row input:focus,
-.phone-row .cc:focus{
-  border-color: rgba(255,255,255,.3);
-  box-shadow: 0 0 15px rgba(255,255,255,.15);
+/* Animación al desplegar opciones */
+.phone-row .cc:focus {
+  border-color: #fff;
+  box-shadow: 0 0 20px rgba(255,255,255,.2);
 }
 
 
@@ -420,6 +429,7 @@
   </script>
 </body>
 </html>
+
 
 
 
