@@ -151,6 +151,9 @@
   background:#111;
   border:1px solid rgba(255,255,255,.1);
   border-radius: var(--radius);
+  min-width: 80px;   /* un poquito más ancho el select */
+  max-width: 100px;
+  border-radius: 12px 0 0 12px;
   color:#fff;
   font-size:1rem;
   outline:none;
@@ -159,6 +162,8 @@
 }
 
 .phone-row .cc:focus{
+  flex: 1; 
+  border-radius: 0 12px 12px 0;
   border-color: rgba(255,255,255,.3);
   box-shadow: 0 0 15px rgba(255,255,255,.15);
 }
@@ -311,6 +316,7 @@ telefonoInput.addEventListener("input", () => {
   </script>
 </body>
 </html>
+
 
 
 
