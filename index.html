@@ -207,6 +207,20 @@
     }
 
     const correoInput = document.getElementById("correo");
+    // teléfono + selector
+const telefonoInput = document.getElementById("telefono");
+const countryCode   = document.getElementById("country-code");
+
+// sólo números y mostrar botón cuando sea válido
+telefonoInput.addEventListener("input", () => {
+  telefonoInput.value = telefonoInput.value.replace(/\D/g, "");
+  if (telefonoInput.value.length >= 8) {
+    enviarBtn.classList.add("visible", "activo");
+  } else if (correoInput.value.trim().length === 0) {
+    enviarBtn.classList.remove("visible", "activo");
+  }
+});
+
     const enviarBtn   = document.getElementById("enviarBtn");
 
     correoInput.addEventListener("input", () => {
@@ -297,6 +311,7 @@
   </script>
 </body>
 </html>
+
 
 
 
