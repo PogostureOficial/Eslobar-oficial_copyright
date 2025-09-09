@@ -332,34 +332,7 @@
       google.accounts.id.disableAutoSelect();
     };
 
-    // --- Formateo con libphonenumber ---
-    document.addEventListener('DOMContentLoaded', () => {
-      function getSelectedISO() {
-        const opt = countryCode.options[countryCode.selectedIndex];
-        return opt && opt.dataset && opt.dataset.iso ? opt.dataset.iso : undefined;
-      }
-
-      function formatAsYouType(value) {
-        const cleaned = value.replace(/[^\d\+]/g, '');
-        const iso = getSelectedISO();
-        if (window.libphonenumber && libphonenumber.AsYouType) {
-          try {
-            const ayt = iso ? new libphonenumber.AsYouType(iso) : new libphonenumber.AsYouType();
-            return ayt.input(cleaned);
-          } catch (e) {}
-        }
-        return cleaned;
-      }
-
-      telefonoInput.addEventListener('input', () => {
-        const formatted = formatAsYouType(telefonoInput.value);
-        telefonoInput.value = formatted;
-      });
-
-      countryCode.addEventListener('change', () => {
-        telefonoInput.dispatchEvent(new Event('input'));
-      });
-    });
+    
     
   </script>
 
@@ -429,6 +402,7 @@
   </script>
 </body>
 </html>
+
 
 
 
