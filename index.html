@@ -271,13 +271,14 @@
 
     // --- Mostrar / ocultar botón ---
     telefonoInput.addEventListener("input", () => {
-      telefonoInput.value = telefonoInput.value.replace(/\D/g, "");
-      if (telefonoInput.value.length >= 8) {
-        enviarBtn.classList.add("visible", "activo");
-      } else if (correoInput.value.trim().length === 0) {
-        enviarBtn.classList.remove("visible", "activo");
-      }
-    });
+  const digitsOnly = telefonoInput.value.replace(/\D/g, "");
+  if (digitsOnly.length >= 8) {
+    enviarBtn.classList.add("visible", "activo");
+  } else if (correoInput.value.trim().length === 0) {
+    enviarBtn.classList.remove("visible", "activo");
+  }
+});
+
 
     correoInput.addEventListener("input", () => {
       const correo = correoInput.value.trim();
@@ -372,59 +373,75 @@
     /* Formatea el teléfono según el país seleccionado usando libphonenumber-js.
        Pegar esto después de cargar libphonenumber-max.js y después de que el DOM exista.
     */
-    document.addEventListener('DOMContentLoaded', () => {
-      const phoneInput = document.getElementById('telefono') || document.getElementById('phone-number');
-      const countrySelect = document.getElementById('country-code');
+    <script>
+/* Formatea el teléfono según el país seleccionado usando libphonenumber-js.
+   Pegar esto después de cargar libphonenumber-max.js y después de que el DOM exista.
+*/
+document.addEventListener('DOMContentLoaded', () => {
+  const phoneInput = document.getElementById('telefono') || document.getElementById('phone-number');
+  const countrySelect = document.getElementById('country-code');
 
-      if (!phoneInput || !countrySelect) return;
+  if (!phoneInput || !countrySelect) return;
 
-      // helper: obtener ISO desde el option seleccionado
-      function getSelectedISO() {
-        const opt = countrySelect.options[countrySelect.selectedIndex];
-        return opt && opt.dataset && opt.dataset.iso ? opt.dataset.iso : undefined;
-      }
-
-      function formatAsYouType(value) {
-  const cleaned = value.replace(/[^\d\+]/g, ''); // dejamos solo dígitos y +
-  const iso = getSelectedISO();
-
-  try {
-    if (libphonenumber && libphonenumber.AsYouType) {
-      const formatter = iso
-        ? new libphonenumber.AsYouType(iso)
-        : new libphonenumber.AsYouType();
-
-      return formatter.input(cleaned);
-    }
-  } catch (e) {
-    console.warn("Error al formatear con libphonenumber:", e);
+  // helper: obtener ISO desde el option seleccionado
+  function getSelectedISO() {
+    const opt = countrySelect.options[countrySelect.selectedIndex];
+    return opt && opt.dataset && opt.dataset.iso ? opt.dataset.iso : undefined;
   }
 
-  // fallback MUY básico (solo para no dejar vacío si falla la librería)
-  return cleaned;
-}
+  function formatAsYouType(value) {
+    const cleaned = value.replace(/[^\d\+]/g, ''); // solo dígitos y +
+    const iso = getSelectedISO();
 
-      // Mantener caret simple: ponemos el cursor al final (evitamos lógica de caret compleja)
-      function setToEnd(el) {
-        try { el.setSelectionRange(el.value.length, el.value.length); }
-        catch (e) { /* ignore */ }
+    // Detectar AsYouType en distintas builds:
+    const AYT = (typeof AsYouType !== 'undefined') ? AsYouType
+              : (window.libphonenumber && (libphonenumber.AsYouType || libphonenumber['AsYouType'])) ? (libphonenumber.AsYouType) 
+              : null;
+
+    try {
+      if (AYT) {
+        const formatter = iso ? new AYT(iso) : new AYT();
+        const out = formatter.input(cleaned);
+        // debug: ver en consola qué usa
+        // console.debug('AsYouType used', { iso, in: cleaned, out });
+        return out;
       }
+    } catch (err) {
+      console.warn('Error en AsYouType:', err);
+    }
 
-      phoneInput.addEventListener('input', (e) => {
-        const before = phoneInput.value;
-        const formatted = formatAsYouType(before);
-        phoneInput.value = formatted;
-        setToEnd(phoneInput);
-      });
-
-      // Re-formatear si cambia el país (útil si el usuario ya escribió número)
-      countrySelect.addEventListener('change', () => {
-        phoneInput.dispatchEvent(new Event('input'));
-      });
+    // Fallback razonable si no existe AsYouType: agrupado simple
+    return cleaned.replace(/^(\+?)(\d{1})(\d{0,3})(\d{0,3})(\d{0,4}).*/, (_, plus, g1, g2, g3, g4) => {
+      let out = (plus ? '+' + g1 : g1 || '');
+      if (g2) out += ' ' + g2;
+      if (g3) out += ' ' + g3;
+      if (g4) out += '-' + g4;
+      return out;
     });
-  </script>
+  }
+
+  // Mantener caret simple: ponemos el cursor al final
+  function setToEnd(el) {
+    try { el.setSelectionRange(el.value.length, el.value.length); }
+    catch (e) { /* ignore */ }
+  }
+
+  phoneInput.addEventListener('input', (e) => {
+    const before = phoneInput.value;
+    const formatted = formatAsYouType(before);
+    if (formatted !== before) phoneInput.value = formatted;
+    setToEnd(phoneInput);
+  });
+
+  // Re-formatear si cambia el país
+  countrySelect.addEventListener('change', () => {
+    phoneInput.dispatchEvent(new Event('input'));
+  });
+});
+ </script>
 </body>
 </html>
+
 
 
 
