@@ -384,21 +384,25 @@
         return opt && opt.dataset && opt.dataset.iso ? opt.dataset.iso : undefined;
       }
 
-      // formatea al escribir (usa AsYouType si la librería está disponible)
       function formatAsYouType(value) {
-        // permitimos + al inicio, pero eliminamos demás no dígitos
-        const cleaned = value.replace(/[^\d\+]/g, '');
-        const iso = getSelectedISO();
+  const cleaned = value.replace(/[^\d\+]/g, ''); // dejamos solo dígitos y +
+  const iso = getSelectedISO();
 
-        if (window.libphonenumber && libphonenumber.AsYouType) {
-          try {
-            // Si tenemos ISO usamos la versión local, si no, intentamos sin país
-            const ayt = iso ? new libphonenumber.AsYouType(iso) : new libphonenumber.AsYouType();
-            return ayt.input(cleaned);
-          } catch (e) {
-            // fallback simple si algo falla
-          }
-        }
+  try {
+    if (libphonenumber && libphonenumber.AsYouType) {
+      const formatter = iso
+        ? new libphonenumber.AsYouType(iso)
+        : new libphonenumber.AsYouType();
+
+      return formatter.input(cleaned);
+    }
+  } catch (e) {
+    console.warn("Error al formatear con libphonenumber:", e);
+  }
+
+  // fallback MUY básico (solo para no dejar vacío si falla la librería)
+  return cleaned;
+}
 
         // Fallback muy simple (no país): 1 - 3 - 3 - 4 (ej. 9 223 546-7889)
         return cleaned
@@ -432,6 +436,7 @@
   </script>
 </body>
 </html>
+
 
 
 
