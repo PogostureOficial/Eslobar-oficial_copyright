@@ -370,14 +370,19 @@
     <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.10.27/bundle/libphonenumber-max.js"></script>
 
 
-    <script>
-/* Formatea el teléfono según el país seleccionado usando libphonenumber-js.
-   Pegar esto después de cargar libphonenumber-max.js y después de que el DOM exista.
+    <!-- Reemplaza el bloque que tienes (el que contiene formatAsYouType) por ESTE -->
+<script type="module">
+/*
+  Bloque robusto para formatear el teléfono. Intenta:
+   - usar AsYouType global si existe,
+   - buscar AsYouType dentro de window.libphonenumber,
+   - importar libphonenumber-js desde skypack como fallback (ESM).
 */
-document.addEventListener('DOMContentLoaded', () => {
-  const phoneInput = document.getElementById('telefono') || document.getElementById('phone-number');
-  const countrySelect = document.getElementById('country-code');
+import * as _maybe from 'https://cdn.skypack.dev/libphonenumber-js@1.10.27';
 
+document.addEventListener('DOMContentLoaded', async () => {
+  const phoneInput = document.getElementById('telefono');
+  const countrySelect = document.getElementById('country-code');
   if (!phoneInput || !countrySelect) return;
 
   // helper: obtener ISO desde el option seleccionado
@@ -386,28 +391,33 @@ document.addEventListener('DOMContentLoaded', () => {
     return opt && opt.dataset && opt.dataset.iso ? opt.dataset.iso : undefined;
   }
 
+  // Detecta AsYouType en varias posibilidades
+  let AYT = null;
+
+  if (typeof AsYouType !== 'undefined') AYT = AsYouType;
+  else if (window.libphonenumber && (window.libphonenumber.AsYouType || window.libphonenumber['AsYouType'])) {
+    AYT = window.libphonenumber.AsYouType || window.libphonenumber['AsYouType'];
+  } else if (_maybe && (_maybe.AsYouType || (_maybe.default && _maybe.default.AsYouType))) {
+    AYT = _maybe.AsYouType || (_maybe.default && _maybe.default.AsYouType);
+  }
+
+  console.log('AsYouType detected?', !!AYT, AYT ? AYT.name || 'class' : 'none');
+
+  // función de formateo
   function formatAsYouType(value) {
     const cleaned = value.replace(/[^\d\+]/g, ''); // solo dígitos y +
     const iso = getSelectedISO();
 
-    // Detectar AsYouType en distintas builds:
-    const AYT = (typeof AsYouType !== 'undefined') ? AsYouType
-              : (window.libphonenumber && (libphonenumber.AsYouType || libphonenumber['AsYouType'])) ? (libphonenumber.AsYouType) 
-              : null;
-
-    try {
-      if (AYT) {
+    if (AYT) {
+      try {
         const formatter = iso ? new AYT(iso) : new AYT();
-        const out = formatter.input(cleaned);
-        // debug: ver en consola qué usa
-        // console.debug('AsYouType used', { iso, in: cleaned, out });
-        return out;
+        return formatter.input(cleaned);
+      } catch (err) {
+        console.warn('AsYouType fallo al formatear:', err);
       }
-    } catch (err) {
-      console.warn('Error en AsYouType:', err);
     }
 
-    // Fallback razonable si no existe AsYouType: agrupado simple
+    // fallback razonable si no existe AsYouType
     return cleaned.replace(/^(\+?)(\d{1})(\d{0,3})(\d{0,3})(\d{0,4}).*/, (_, plus, g1, g2, g3, g4) => {
       let out = (plus ? '+' + g1 : g1 || '');
       if (g2) out += ' ' + g2;
@@ -417,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Mantener caret simple: ponemos el cursor al final
+  // caret al final
   function setToEnd(el) {
     try { el.setSelectionRange(el.value.length, el.value.length); }
     catch (e) { /* ignore */ }
@@ -430,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setToEnd(phoneInput);
   });
 
-  // Re-formatear si cambia el país
   countrySelect.addEventListener('change', () => {
     phoneInput.dispatchEvent(new Event('input'));
   });
@@ -438,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
  </script>
 </body>
 </html>
+
 
 
 
