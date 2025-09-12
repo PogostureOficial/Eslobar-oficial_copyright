@@ -1,0 +1,143 @@
+/* ===== Estilos generales ===== */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #111; /* gris oscuro, no negro puro */
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Texto inicial */
+#titulo {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+/* Caja de mensajes (chat centrado con borde fino) */
+.chat-box {
+  flex: none;
+  width: 90%;
+  max-width: 700px;
+  height: 60vh;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.1); /* borde sutil */
+  border-radius: 16px;
+  background: #1a1a1a; /* gris más claro */
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.02); /* sutil */
+}
+
+/* Mensajes */
+.message {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 16px;
+  max-width: 70%;
+  word-wrap: break-word;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.user {
+  background: #2a2a2a; /* gris medio */
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.bot {
+  background: #202020;
+  color: #ddd;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.loading {
+  font-style: italic;
+  color: #aaa;
+  margin: 8px 0;
+}
+
+/* Contenedor de input */
+.input-container {
+  width: 90%;
+  max-width: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #181818;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  padding: 10px 15px;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Brillo sutil al escribir */
+.input-container:focus-within {
+  box-shadow: 0 0 6px rgba(255,255,255,0.2);
+}
+
+input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 16px;
+}
+
+input::placeholder {
+  color: #666;
+}
+
+/* ---------- Botón con imágenes + animaciones ---------- */
+.voice-btn {
+  width: 40px;     
+  height: 40px;
+  position: relative;
+  cursor: pointer;
+  overflow: visible;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+  display: block;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-btn:hover {
+  background: rgba(255,255,255,0.05); /* efecto hover minimalista */
+}
+
+.voice-btn img {
+  max-width: 90%;   /* ajusta el icono dentro del círculo */
+  max-height: 90%;
+  display: block;
+}
+
+/* ==== ELIMINAR EL RECUADRO DE FONDO ==== */
+.chat-box {
+  background: transparent !important; /* elimina el fondo */
+  box-shadow: none !important;        /* elimina sombras */
+  border: none !important;            /* elimina borde */
+}
+
+
+
+
+

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat con IA</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div id="titulo">¿En qué puedo ayudarte hoy?</div>
+
+  <div id="chat" class="chat-box"></div>
+
+  <div class="input-container">
+    <input id="mensaje" type="text" placeholder="Enviar mensaje..." onkeydown="if(event.key==='Enter'){enviarMensaje()}">
+    <div class="voice-btn" id="voiceBtn" aria-hidden="true">
+      <img src="button1.png" id="btn1" class="initial-visible" alt="button1">
+      <img src="button2.png" id="btn2" class="initial-hidden" alt="button2">
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('mensaje');
+    const btn1 = document.getElementById('btn1'); // mic (initial)
+    const btn2 = document.getElementById('btn2'); // send (appears when text)
+
+    let isBtn2Visible = false;
+    let animBtn1 = null;
+    let animBtn2 = null;
+    let animationTimeout; // <- nueva variable global
+    let previousHasText = false;
+
+    const D = 250; // duración en ms por animación
+    const easing = 'cubic-bezier(.22,1,.36,1)';
+
+    // Asegurar estados iniciales (por si acaso)
+    btn1.style.visibility = 'visible';
+    btn1.style.transform = 'scale(1)';
+    btn1.style.opacity = '1';
+    btn2.style.visibility = 'hidden';
+    btn2.style.transform = 'scale(0)';
+    btn2.style.opacity = '0';
+    btn1.style.transformOrigin = 'center center';
+    btn2.style.transformOrigin = 'center center';
+
+    // Cancela animaciones en curso y 'congela' el estado actual en estilos inline
+    function cancelAnimsAndFreeze() {
+      if (animBtn1) {
+        animBtn1.cancel();
+        animBtn1 = null;
+        const cs = getComputedStyle(btn1);
+        btn1.style.transform = cs.transform === 'none' ? 'scale(1)' : cs.transform;
+        btn1.style.opacity = cs.opacity;
+      }
+      if (animBtn2) {
+        animBtn2.cancel();
+        animBtn2 = null;
+        const cs2 = getComputedStyle(btn2);
+        btn2.style.transform = cs2.transform === 'none' ? 'scale(1)' : cs2.transform;
+        btn2.style.opacity = cs2.opacity;
+      }
+    }
+
+    function transitionToBtn2() {
+      cancelAnimsAndFreeze();
+
+      // Aseguramos que btn1 esté visible para poder animarlo
+      btn1.style.visibility = 'visible';
+
+      // Shrink btn1
+      animBtn1 = btn1.animate(
+        [
+          { transform: 'scale(1)', opacity: 1 },
+          { transform: 'scale(0)', opacity: 0 }
+        ],
+        { duration: D, easing, fill: 'forwards' }
+      );
+
+      animBtn1.onfinish = () => {
+        animBtn1 = null;
+        // ocultamos btn1 al final
+        btn1.style.visibility = 'hidden';
+        btn1.style.transform = 'scale(0)';
+        btn1.style.opacity = '0';
+
+        // Hacemos aparecer btn2 (grow)
+        btn2.style.visibility = 'visible';
+        animBtn2 = btn2.animate(
+          [
+            { transform: 'scale(0)', opacity: 0 },
+            { transform: 'scale(1)', opacity: 1 }
+          ],
+          { duration: D, easing, fill: 'forwards' }
+        );
+
+        animBtn2.onfinish = () => {
+          animBtn2 = null;
+          btn2.style.transform = 'scale(1)';
+          btn2.style.opacity = '1';
+          isBtn2Visible = true;
+
+          // 🔑 Forzar corrección
+          animationTimeout = setTimeout(() => {
+            if (input.value.trim() === '') {
+              transitionToBtn1();
+            }
+          }, 10);
+        };
+      };
+    }
+
+    function transitionToBtn1() {
+      cancelAnimsAndFreeze();
+
+      // Aseguramos que btn2 esté visible para poder animarlo
+      btn2.style.visibility = 'visible';
+
+      // Shrink btn2
+      animBtn2 = btn2.animate(
+        [
+          { transform: 'scale(1)', opacity: 1 },
+          { transform: 'scale(0)', opacity: 0 }
+        ],
+        { duration: D, easing, fill: 'forwards' }
+      );
+
+      animBtn2.onfinish = () => {
+        animBtn2 = null;
+        // ocultamos btn2 al final
+        btn2.style.visibility = 'hidden';
+        btn2.style.transform = 'scale(0)';
+        btn2.style.opacity = '0';
+
+        // Hacemos aparecer btn1 (grow)
+        btn1.style.visibility = 'visible';
+        animBtn1 = btn1.animate(
+          [
+            { transform: 'scale(0)', opacity: 0 },
+            { transform: 'scale(1)', opacity: 1 }
+          ],
+          { duration: D, easing, fill: 'forwards' }
+        );
+
+        animBtn1.onfinish = () => {
+          animBtn1 = null;
+          btn1.style.transform = 'scale(1)';
+          btn1.style.opacity = '1';
+          isBtn2Visible = false;
+
+          // 🔑 Forzar corrección
+          animationTimeout = setTimeout(() => {
+            if (input.value.trim() !== '') {
+              transitionToBtn2();
+            }
+          }, 10);
+        };
+      };
+    }
+
+
+    // Handler principal: decide transiciones solo si el estado debería cambiar
+   input.addEventListener('input', () => {
+  const hasText = input.value.trim() !== '';
+
+  // Solo hacemos la transición si hubo un cambio real de estado
+  if (hasText && !previousHasText) {
+    // Primer carácter ingresado
+    transitionToBtn2();
+  } else if (!hasText && previousHasText) {
+    // Último carácter borrado
+    transitionToBtn1();
+  }
+
+  // Actualizamos el estado previo
+  previousHasText = hasText;
+});
+
+
+    /* ===== El resto de tu JS (enviarMensaje) queda igual ===== */
+    async function enviarMensaje() {
+      const chat = document.getElementById("chat");
+      const titulo = document.getElementById("titulo");
+
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      // Ocultar título inicial
+      titulo.style.opacity = 0;
+
+      // Mensaje del usuario
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.innerText = userText;
+      chat.appendChild(userMsg);
+
+      input.value = ""; // ya estaba
+
+// Forzamos volver al botón de voz
+if (previousHasText) {
+  transitionToBtn1();
+  previousHasText = false;
+}
+
+      // Mensaje "cargando"
+      const loadingMsg = document.createElement("div");
+      loadingMsg.className = "loading";
+      loadingMsg.innerText = "Escribiendo...";
+      chat.appendChild(loadingMsg);
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const response = await fetch("http://localhost:3000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText })
+        });
+
+        const data = await response.json();
+        if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+
+        // Respuesta IA
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot";
+        botMsg.innerText = data.reply;
+        chat.appendChild(botMsg);
+        chat.scrollTop = chat.scrollHeight;
+
+      } catch (error) {
+        if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot";
+        botMsg.innerText = "Error al conectar con el servidor.";
+        chat.appendChild(botMsg);
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
+
