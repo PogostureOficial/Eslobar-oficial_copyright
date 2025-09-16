@@ -7,336 +7,227 @@
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
+  <!-- Título inicial -->
   <div id="titulo">¿En qué puedo ayudarte hoy?</div>
 
+  <!-- Contenedor del chat -->
   <div id="chat" class="chat-box"></div>
 
+  <!-- Entrada de texto y botón -->
   <div class="input-container">
-    <textarea id="mensaje" rows="1" placeholder="Pregunta lo que quieras..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();enviarMensaje()}"></textarea>
+    <textarea 
+      id="mensaje" 
+      rows="1" 
+      placeholder="Pregunta lo que quieras..." 
+      onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();enviarMensaje()}"
+    ></textarea>
+
     <div class="voice-btn" id="voiceBtn" aria-hidden="true">
-      <img src="button1.png" id="btn1" class="initial-visible" alt="button1">
-      <img src="button2.png" id="btn2" class="initial-hidden" alt="button2">
+      <img src="button1.png" id="btn1" class="initial-visible" alt="Micrófono">
+      <img src="button2.png" id="btn2" class="initial-hidden" alt="Enviar">
     </div>
   </div>
 
   <script>
+    /* =========================================================
+       VARIABLES GLOBALES
+    ========================================================= */
     const input = document.getElementById('mensaje');
-    const btn1 = document.getElementById('btn1'); // mic (initial)
-    const btn2 = document.getElementById('btn2'); // send (appears when text)
+    const chat = document.getElementById("chat");
+    const titulo = document.getElementById("titulo");
+    const btn1 = document.getElementById('btn1'); // mic
+    const btn2 = document.getElementById('btn2'); // enviar
 
-    let isBtn2Visible = false;
-    let animBtn1 = null;
-    let animBtn2 = null;
-    let animationTimeout; // <- nueva variable global
+    let animBtn1 = null, animBtn2 = null;
     let previousHasText = false;
-
-    const D = 250; // duración en ms por animación
+    const D = 250; // duración animaciones
     const easing = 'cubic-bezier(.22,1,.36,1)';
 
-function typeWriterEffect(container, text = '', speed = 15) {
-  return new Promise((resolve) => {
-    if (!text) { resolve(); return; }
+    /* =========================================================
+       UTILIDADES
+    ========================================================= */
+    function parseBold(text) {
+      return text.replace(/\*(.*?)\*/g, '<b>$1</b>');
+    }
 
-    // Usamos parseBold para convertir *texto* en <b>texto</b>
-    const parsed = parseBold(text);
-    let i = 0;
-    let buffer = "";
+    function addBotMessage() {
+      const botMsg = document.createElement("div");
+      botMsg.className = "message bot";
+      chat.appendChild(botMsg);
+      return botMsg;
+    }
 
-    const interval = setInterval(() => {
-      buffer = parsed.slice(0, i + 1);
-      container.innerHTML = buffer; // 👈 ahora sí interpreta etiquetas
-      i++;
+    function typeWriterEffect(container, text = '', speed = 15) {
+      return new Promise((resolve) => {
+        if (!text) return resolve();
 
-      if (container.parentElement) {
-        container.parentElement.scrollTop = container.parentElement.scrollHeight;
-      }
+        const parsed = parseBold(text);
+        let i = 0;
+        const interval = setInterval(() => {
+          container.innerHTML = parsed.slice(0, i + 1);
+          if (container.parentElement) {
+            container.parentElement.scrollTop = container.parentElement.scrollHeight;
+          }
+          if (++i >= parsed.length) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, speed);
+      });
+    }
 
-      if (i >= parsed.length) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, speed);
-  });
-}
-
-
-// ===== Agrega esto justo después de typeWriterEffect =====
-function parseBold(text) {
-  return text.replace(/\*(.*?)\*/g, '<b>$1</b>');
-}
-
-function addBotMessage() {
-  const chat = document.getElementById("chat"); // tu contenedor
-  const botMsg = document.createElement("div");
-  botMsg.className = "message bot";
-  chat.appendChild(botMsg);
-  return botMsg;
-}
-
-
-    // Asegurar estados iniciales (por si acaso)
-    btn1.style.visibility = 'visible';
-    btn1.style.transform = 'scale(1)';
-    btn1.style.opacity = '1';
-    btn2.style.visibility = 'hidden';
-    btn2.style.transform = 'scale(0)';
-    btn2.style.opacity = '0';
-    btn1.style.transformOrigin = 'center center';
-    btn2.style.transformOrigin = 'center center';
-
-    // Cancela animaciones en curso y 'congela' el estado actual en estilos inline
+    /* =========================================================
+       ANIMACIONES BOTONES (mic/enviar)
+    ========================================================= */
     function cancelAnimsAndFreeze() {
-      if (animBtn1) {
-        animBtn1.cancel();
-        animBtn1 = null;
-        const cs = getComputedStyle(btn1);
-        btn1.style.transform = cs.transform === 'none' ? 'scale(1)' : cs.transform;
-        btn1.style.opacity = cs.opacity;
-      }
-      if (animBtn2) {
-        animBtn2.cancel();
-        animBtn2 = null;
-        const cs2 = getComputedStyle(btn2);
-        btn2.style.transform = cs2.transform === 'none' ? 'scale(1)' : cs2.transform;
-        btn2.style.opacity = cs2.opacity;
-      }
+      [btn1, btn2].forEach((btn, idx) => {
+        let anim = idx === 0 ? animBtn1 : animBtn2;
+        if (anim) {
+          anim.cancel();
+          if (idx === 0) animBtn1 = null; else animBtn2 = null;
+          const cs = getComputedStyle(btn);
+          btn.style.transform = cs.transform === 'none' ? 'scale(1)' : cs.transform;
+          btn.style.opacity = cs.opacity;
+        }
+      });
     }
 
     function transitionToBtn2() {
       cancelAnimsAndFreeze();
-
-      // Aseguramos que btn1 esté visible para poder animarlo
       btn1.style.visibility = 'visible';
-
-      // Shrink btn1
       animBtn1 = btn1.animate(
-        [
-          { transform: 'scale(1)', opacity: 1 },
-          { transform: 'scale(0)', opacity: 0 }
-        ],
+        [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0)', opacity: 0 }],
         { duration: D, easing, fill: 'forwards' }
       );
 
       animBtn1.onfinish = () => {
-        animBtn1 = null;
-        // ocultamos btn1 al final
         btn1.style.visibility = 'hidden';
-        btn1.style.transform = 'scale(0)';
-        btn1.style.opacity = '0';
-
-        // Hacemos aparecer btn2 (grow)
         btn2.style.visibility = 'visible';
         animBtn2 = btn2.animate(
-          [
-            { transform: 'scale(0)', opacity: 0 },
-            { transform: 'scale(1)', opacity: 1 }
-          ],
+          [{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }],
           { duration: D, easing, fill: 'forwards' }
         );
-
-        animBtn2.onfinish = () => {
-          animBtn2 = null;
-          btn2.style.transform = 'scale(1)';
-          btn2.style.opacity = '1';
-          isBtn2Visible = true;
-
-          // 🔑 Forzar corrección
-          animationTimeout = setTimeout(() => {
-            if (input.value.trim() === '') {
-              transitionToBtn1();
-            }
-          }, 10);
-        };
       };
     }
 
     function transitionToBtn1() {
       cancelAnimsAndFreeze();
-
-      // Aseguramos que btn2 esté visible para poder animarlo
       btn2.style.visibility = 'visible';
-
-      // Shrink btn2
       animBtn2 = btn2.animate(
-        [
-          { transform: 'scale(1)', opacity: 1 },
-          { transform: 'scale(0)', opacity: 0 }
-        ],
+        [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0)', opacity: 0 }],
         { duration: D, easing, fill: 'forwards' }
       );
 
       animBtn2.onfinish = () => {
-        animBtn2 = null;
-        // ocultamos btn2 al final
         btn2.style.visibility = 'hidden';
-        btn2.style.transform = 'scale(0)';
-        btn2.style.opacity = '0';
-
-        // Hacemos aparecer btn1 (grow)
         btn1.style.visibility = 'visible';
         animBtn1 = btn1.animate(
-          [
-            { transform: 'scale(0)', opacity: 0 },
-            { transform: 'scale(1)', opacity: 1 }
-          ],
+          [{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }],
           { duration: D, easing, fill: 'forwards' }
         );
-
-        animBtn1.onfinish = () => {
-          animBtn1 = null;
-          btn1.style.transform = 'scale(1)';
-          btn1.style.opacity = '1';
-          isBtn2Visible = false;
-
-          // 🔑 Forzar corrección
-          animationTimeout = setTimeout(() => {
-            if (input.value.trim() !== '') {
-              transitionToBtn2();
-            }
-          }, 10);
-        };
       };
     }
 
-    // Handler principal: decide transiciones solo si el estado debería cambiar
-   input.addEventListener('input', () => {
-  const hasText = input.value.trim() !== '';
+    /* =========================================================
+       EVENTOS
+    ========================================================= */
+    input.addEventListener('input', () => {
+      const hasText = input.value.trim() !== '';
+      if (hasText && !previousHasText) transitionToBtn2();
+      else if (!hasText && previousHasText) transitionToBtn1();
+      previousHasText = hasText;
 
-  // Solo hacemos la transición si hubo un cambio real de estado
-  if (hasText && !previousHasText) {
-    // Primer carácter ingresado
-    transitionToBtn2();
-  } else if (!hasText && previousHasText) {
-    // Último carácter borrado
-    transitionToBtn1();
-  }
+      // auto expand textarea
+      input.style.height = "auto";
+      input.style.height = input.scrollHeight + "px";
+      document.querySelector(".input-container")
+        .classList.toggle("expanded", input.scrollHeight > input.clientHeight);
+    });
 
-  // Actualizamos el estado previo
-  previousHasText = hasText;
-});
+    if (window.visualViewport) {
+  // Cuando aparece o desaparece el teclado, ajustamos la altura
+  window.visualViewport.addEventListener('resize', ajustarAlturaMovil);
+  window.visualViewport.addEventListener('scroll', ajustarAlturaMovil);
+}
 
-
-    /* ===== El resto de tu JS (enviarMensaje) queda igual ===== */
+    /* =========================================================
+       MENSAJES
+    ========================================================= */
     async function enviarMensaje() {
-      const chat = document.getElementById("chat");
-      const titulo = document.getElementById("titulo");
-
       const userText = input.value.trim();
       if (!userText) return;
 
-      // Ocultar título inicial
+      // Ocultar título y agregar mensaje usuario
       titulo.style.opacity = 0;
-
-      // Mensaje del usuario
       const userMsg = document.createElement("div");
       userMsg.className = "message user";
       userMsg.innerHTML = parseBold(userText);
       chat.appendChild(userMsg);
 
-      input.value = ""; // ya estaba
-      input.style.height = "auto"; // reset al tamaño original
+      // reset input
+      input.value = "";
+      input.style.height = "auto";
+      transitionToBtn1();
+      previousHasText = false;
 
+      // Loading
+      const loadingMsg = document.createElement("div");
+      loadingMsg.className = "message bot loading";
+      loadingMsg.innerHTML = `<span></span>
+        <video src="anim1.mp4" autoplay loop muted playsinline width="40"></video>`;
+      chat.appendChild(loadingMsg);
+      chat.scrollTop = chat.scrollHeight;
 
-// Forzamos volver al botón de voz
-if (previousHasText) {
-  transitionToBtn1();
-  previousHasText = false;
-}
+      try {
+        // request al servidor
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+        const response = await fetch("http://localhost:3000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText }),
+          signal: controller.signal
+        });
 
-// Mostrar "Escribiendo..." con animación de video
-const loadingMsg = document.createElement("div");
-loadingMsg.className = "message bot loading";
-loadingMsg.innerHTML = `
-  <span></span>
-  <video src="anim1.mp4" autoplay loop muted playsinline width="40"></video>
-`;
-chat.appendChild(loadingMsg);
-chat.scrollTop = chat.scrollHeight;
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+          if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+          const botMsg = addBotMessage();
+          await typeWriterEffect(botMsg, `Error ${response.status}: ${response.statusText}`, 15);
+          return;
+        }
 
+        const data = await response.json().catch(() => null);
+        if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
 
-     try {
-  // timeout + fetch robusto
-  const controller = new AbortController();
-  const timeoutMs = 10000; // 15s timeout
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        const reply = data?.reply ? parseBold(String(data.reply)) : 'No hay respuesta del servidor.';
+        const botMsg = addBotMessage();
+        await typeWriterEffect(botMsg, reply, 15);
 
-  const response = await fetch("http://localhost:3000/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userText }),
-    signal: controller.signal
-  });
-
-  clearTimeout(timeoutId);
-
-  // Si el servidor devuelve un status de error, lee el body para debug y muestra mensaje animado
-  if (!response.ok) {
-    console.error('Fetch HTTP error:', response.status, response.statusText);
-    let bodyText = '';
-    try { bodyText = await response.text(); } catch (e) { /* ignore */ }
-
-    if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-
-    const botMsg = addBotMessage();
-    await typeWriterEffect(botMsg, `Error del servidor (${response.status}): ${response.statusText}`, 15);
-    console.log('Server body (debug):', bodyText);
-    return;
-  }
-
-  // Intentar parsear JSON de forma segura
-  let data;
-  try {
-    data = await response.json();
-  } catch (e) {
-    console.error('JSON parse error:', e);
-    if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-    const botMsg = addBotMessage();
-    await typeWriterEffect(botMsg, 'Respuesta inválida del servidor.', 15);
-    return;
-  }
-
-  // quitar "Escribiendo..."
-  if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-
-// RESET con animación suave
-const textarea = document.getElementById("mensaje");
-textarea.value = "";
-textarea.style.height = "auto";         // colapsa
-requestAnimationFrame(() => {
-  textarea.style.height = textarea.scrollHeight + "px"; // ajusta suavemente
-});
-
-
-  // Mostrar la respuesta (animada)
-  const reply = (data && data.reply) ? parseBold(String(data.reply)) : 'No hay respuesta del servidor.';
-  const botMsg = addBotMessage();
-  await typeWriterEffect(botMsg, reply, 15);
-
-} catch (error) {
-  // cualquier fallo de red / timeout / abort aquí
-  if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-  console.error('Fetch failed:', error);
-
-  const botMsg = addBotMessage();
-  // Mensaje útil para el usuario y hint para debug (cambia si querés)
-  const msg = (error.name === 'AbortError')
-    ? 'La petición tardó demasiado y fue cancelada.'
-    : 'Lorem ipsum dolor sit amet 😄, consectetur adipiscing elit 🚀. *Sed do eiusmod tempor incididunt* ut **labore et dolore magna aliqua.** 💻 Ut enim ad minim veniam ✨, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 🌍 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
-  await typeWriterEffect(botMsg, msg, 10);
-}
+      } catch (error) {
+        if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+        const botMsg = addBotMessage();
+        const msg = (error.name === 'AbortError')
+          ? 'La petición tardó demasiado y fue cancelada.'
+          : '*Hola, soy Eslobar* 👋, tu asistente de inteligencia artificial para ayudarte a estudiar, cualquier duda que necesites solo preguntamelo y con gusto te ayudare ☺️, ¿Quieres que te ayude a estudiar algun tema especifico de alguna materia o simplemente quieres que te explique algun ejercicio que no entiendas? ';
+        await typeWriterEffect(botMsg, msg, 10);
+      }
     }
 
-    
-    const textarea = document.getElementById("mensaje");
-
-textarea.addEventListener("input", () => {
-  textarea.style.height = "auto";
-  textarea.style.height = textarea.scrollHeight + "px";
-});
-
+    /* =========================================================
+   UTILIDADES EXTRA: Ajuste dinámico en móviles
+========================================================= */
+function ajustarAlturaMovil() {
+  if (window.visualViewport) {
+    const vh = window.visualViewport.height; 
+    document.body.style.height = vh + 'px';
+  }
+}
 
   </script>
 </body>
 </html>
+
+
 
