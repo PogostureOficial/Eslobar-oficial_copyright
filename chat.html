@@ -12,7 +12,7 @@
   <div id="chat" class="chat-box"></div>
 
   <div class="input-container">
-    <input id="mensaje" type="text" placeholder="Enviar mensaje..." onkeydown="if(event.key==='Enter'){enviarMensaje()}">
+    <textarea id="mensaje" rows="1" placeholder="Pregunta lo que quieras..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();enviarMensaje()}"></textarea>
     <div class="voice-btn" id="voiceBtn" aria-hidden="true">
       <img src="button1.png" id="btn1" class="initial-visible" alt="button1">
       <img src="button2.png" id="btn2" class="initial-hidden" alt="button2">
@@ -32,6 +32,47 @@
 
     const D = 250; // duración en ms por animación
     const easing = 'cubic-bezier(.22,1,.36,1)';
+
+function typeWriterEffect(container, text = '', speed = 15) {
+  return new Promise((resolve) => {
+    if (!text) { resolve(); return; }
+
+    // Usamos parseBold para convertir *texto* en <b>texto</b>
+    const parsed = parseBold(text);
+    let i = 0;
+    let buffer = "";
+
+    const interval = setInterval(() => {
+      buffer = parsed.slice(0, i + 1);
+      container.innerHTML = buffer; // 👈 ahora sí interpreta etiquetas
+      i++;
+
+      if (container.parentElement) {
+        container.parentElement.scrollTop = container.parentElement.scrollHeight;
+      }
+
+      if (i >= parsed.length) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, speed);
+  });
+}
+
+
+// ===== Agrega esto justo después de typeWriterEffect =====
+function parseBold(text) {
+  return text.replace(/\*(.*?)\*/g, '<b>$1</b>');
+}
+
+function addBotMessage() {
+  const chat = document.getElementById("chat"); // tu contenedor
+  const botMsg = document.createElement("div");
+  botMsg.className = "message bot";
+  chat.appendChild(botMsg);
+  return botMsg;
+}
+
 
     // Asegurar estados iniciales (por si acaso)
     btn1.style.visibility = 'visible';
@@ -157,7 +198,6 @@
       };
     }
 
-
     // Handler principal: decide transiciones solo si el estado debería cambiar
    input.addEventListener('input', () => {
   const hasText = input.value.trim() !== '';
@@ -190,10 +230,12 @@
       // Mensaje del usuario
       const userMsg = document.createElement("div");
       userMsg.className = "message user";
-      userMsg.innerText = userText;
+      userMsg.innerHTML = parseBold(userText);
       chat.appendChild(userMsg);
 
       input.value = ""; // ya estaba
+      input.style.height = "auto"; // reset al tamaño original
+
 
 // Forzamos volver al botón de voz
 if (previousHasText) {
@@ -201,39 +243,99 @@ if (previousHasText) {
   previousHasText = false;
 }
 
-      // Mensaje "cargando"
-      const loadingMsg = document.createElement("div");
-      loadingMsg.className = "loading";
-      loadingMsg.innerText = "Escribiendo...";
-      chat.appendChild(loadingMsg);
-      chat.scrollTop = chat.scrollHeight;
 
-      try {
-        const response = await fetch("http://localhost:3000/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userText })
-        });
+// Mostrar "Escribiendo..." con animación de video
+const loadingMsg = document.createElement("div");
+loadingMsg.className = "message bot loading";
+loadingMsg.innerHTML = `
+  <span></span>
+  <video src="anim1.mp4" autoplay loop muted playsinline width="40"></video>
+`;
+chat.appendChild(loadingMsg);
+chat.scrollTop = chat.scrollHeight;
 
-        const data = await response.json();
-        if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
 
-        // Respuesta IA
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot";
-        botMsg.innerText = data.reply;
-        chat.appendChild(botMsg);
-        chat.scrollTop = chat.scrollHeight;
+     try {
+  // timeout + fetch robusto
+  const controller = new AbortController();
+  const timeoutMs = 10000; // 15s timeout
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      } catch (error) {
-        if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot";
-        botMsg.innerText = "Error al conectar con el servidor.";
-        chat.appendChild(botMsg);
-        console.error(error);
-      }
+  const response = await fetch("http://localhost:3000/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userText }),
+    signal: controller.signal
+  });
+
+  clearTimeout(timeoutId);
+
+  // Si el servidor devuelve un status de error, lee el body para debug y muestra mensaje animado
+  if (!response.ok) {
+    console.error('Fetch HTTP error:', response.status, response.statusText);
+    let bodyText = '';
+    try { bodyText = await response.text(); } catch (e) { /* ignore */ }
+
+    if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+
+    const botMsg = addBotMessage();
+    await typeWriterEffect(botMsg, `Error del servidor (${response.status}): ${response.statusText}`, 15);
+    console.log('Server body (debug):', bodyText);
+    return;
+  }
+
+  // Intentar parsear JSON de forma segura
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    console.error('JSON parse error:', e);
+    if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+    const botMsg = addBotMessage();
+    await typeWriterEffect(botMsg, 'Respuesta inválida del servidor.', 15);
+    return;
+  }
+
+  // quitar "Escribiendo..."
+  if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+
+// RESET con animación suave
+const textarea = document.getElementById("mensaje");
+textarea.value = "";
+textarea.style.height = "auto";         // colapsa
+requestAnimationFrame(() => {
+  textarea.style.height = textarea.scrollHeight + "px"; // ajusta suavemente
+});
+
+
+  // Mostrar la respuesta (animada)
+  const reply = (data && data.reply) ? parseBold(String(data.reply)) : 'No hay respuesta del servidor.';
+  const botMsg = addBotMessage();
+  await typeWriterEffect(botMsg, reply, 15);
+
+} catch (error) {
+  // cualquier fallo de red / timeout / abort aquí
+  if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+  console.error('Fetch failed:', error);
+
+  const botMsg = addBotMessage();
+  // Mensaje útil para el usuario y hint para debug (cambia si querés)
+  const msg = (error.name === 'AbortError')
+    ? 'La petición tardó demasiado y fue cancelada.'
+    : 'Lorem ipsum dolor sit amet 😄, consectetur adipiscing elit 🚀. *Sed do eiusmod tempor incididunt* ut **labore et dolore magna aliqua.** 💻 Ut enim ad minim veniam ✨, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 🌍 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
+  await typeWriterEffect(botMsg, msg, 10);
+}
     }
+
+    
+    const textarea = document.getElementById("mensaje");
+
+textarea.addEventListener("input", () => {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+});
+
+
   </script>
 </body>
 </html>
