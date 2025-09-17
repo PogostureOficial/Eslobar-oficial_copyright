@@ -26,32 +26,37 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
+    console.log("📩 Mensaje recibido en /chat:", userMessage);
+
     if (!userMessage) {
+      console.log("⚠️ No se recibió mensaje en la request");
       return res.status(400).json({ error: "No se recibió mensaje" });
     }
 
     const response = await fetch(
-  "https://api-inference.huggingface.co/models/microsoft/phi-1_5",
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${HF_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ inputs: userMessage }),
-  }
-);
+      "https://api-inference.huggingface.co/models/bigscience/bloom-560m",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${HF_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputs: userMessage }),
+      }
+    );
 
     if (!response.ok) {
       const text = await response.text();
+      console.error("❌ Error desde HuggingFace:", text);
       return res.status(response.status).json({ error: text });
     }
 
     const data = await response.json();
-    console.log("Respuesta HF:", data); // 👈 log para depuración en Render
-    res.json(data);
+    console.log("✅ Respuesta HuggingFace:", data);
 
+    res.json(data);
   } catch (err) {
+    console.error("💥 Error en /chat:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
