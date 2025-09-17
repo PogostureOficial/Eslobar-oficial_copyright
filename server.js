@@ -38,7 +38,7 @@ app.post("/chat", async (req, res) => {
 
     // 🚀 Llamada al modelo de Hugging Face
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/distilgpt2", // ✅ Modelo gratuito y activo
+      "https://api-inference.huggingface.co/models/facebook/bart-large-cnn", // ✅ Modelo gratuito y activo
       {
         method: "POST",
         headers: {
