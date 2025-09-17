@@ -10,7 +10,7 @@ app.use(express.json());
 // Token configurado en Render (Settings -> Environment Variables)
 const HF_TOKEN = process.env.HF_TOKEN;
 // Modelo por defecto (puedes cambiarlo con la variable HF_MODEL en Render)
-const HF_MODEL = process.env.HF_MODEL || "distilgpt2";
+const HF_MODEL = process.env.HF_MODEL || "tiiuae/falcon-7b-instruct";
 
 // __dirname para ESM
 const __filename = fileURLToPath(import.meta.url);
