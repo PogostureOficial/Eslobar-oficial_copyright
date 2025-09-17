@@ -26,10 +26,12 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
-    if (!userMessage) return res.status(400).json({ error: "No se recibió mensaje" });
+    if (!userMessage) {
+      return res.status(400).json({ error: "No se recibió mensaje" });
+    }
 
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/gpt2", 
+      "https://api-inference.huggingface.co/models/gpt2", // 👈 prueba con otro modelo más estable si da error
       {
         method: "POST",
         headers: {
@@ -46,7 +48,8 @@ app.post("/chat", async (req, res) => {
     }
 
     const data = await response.json();
-    res.json(data); // enviamos la respuesta al frontend
+    console.log("Respuesta HF:", data); // 👈 log para depuración en Render
+    res.json(data);
 
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -56,7 +59,3 @@ app.post("/chat", async (req, res) => {
 // 🔹 Puerto (Render usa process.env.PORT)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
-
-const data = await response.json();
-console.log("Respuesta HF:", data); // 👈 para depuración
-res.json(data);
