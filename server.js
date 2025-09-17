@@ -32,6 +32,22 @@ app.post("/chat", async (req, res) => {
 
     console.log("📩 Mensaje recibido en /chat:", userMessage);
 
+// server.js
+console.log("🔑 HF_TOKEN:", HF_TOKEN ? HF_TOKEN.slice(0, 5) + "..." : "NO TOKEN");
+console.log("👉 Modelo al que llamo:", "https://api-inference.huggingface.co/models/gpt2");
+
+const response = await fetch(
+  "https://api-inference.huggingface.co/models/gpt2",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${HF_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ inputs: userMessage }),
+  }
+);
+
     const response = await fetch(
       "https://api-inference.huggingface.co/models/distilgpt2", // ✅ Modelo gratuito y activo
       {
