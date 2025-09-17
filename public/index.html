@@ -35,26 +35,28 @@
 
   <script>
 
-/* =========================================================
-   PANEL DE DEPURACIÓN - muestra logs y errores en pantalla
-========================================================= */
-(function() {
+window.addEventListener("DOMContentLoaded", () => {
+  /* =========================================================
+     PANEL DE DEPURACIÓN - centrado en pantalla
+  ========================================================= */
   const logDiv = document.createElement("div");
   logDiv.id = "debug-panel";
   logDiv.style.cssText = `
     position:fixed;
-    bottom:0;
-    left:0;
-    width:100%;
-    max-height:200px;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    width:90%;
+    height:60%;
     overflow:auto;
     background:#111;
     color:#0f0;
     font-size:12px;
-    padding:5px;
-    z-index:99999;
+    padding:10px;
+    z-index:999999;
     font-family: monospace;
     white-space: pre-wrap;
+    border:2px solid #0f0;
   `;
   document.body.appendChild(logDiv);
 
@@ -87,18 +89,7 @@
   };
 
   // Capturar errores globales
-  window.onerror = function(message, source, lineno, colno, error) {
-    printToPanel("WINDOW ERROR", [`${message} at ${source}:${lineno}:${colno}`], "#f55");
-    if (error && error.stack) {
-      printToPanel("STACK", [error.stack], "#faa");
-    }
-  };
-
-  // Capturar errores en promesas no gestionadas
-  window.addEventListener("unhandledrejection", (event) => {
-    printToPanel("PROMISE ERROR", [event.reason], "#ff0");
-  });
-})();
+  window.onerror
 
     /* =========================================================
        VARIABLES GLOBALES
