@@ -35,16 +35,70 @@
 
   <script>
 
-// Redirigir console.log a un div en la página
-const logDiv = document.createElement("div");
-logDiv.style.cssText = "background:#111;color:#0f0;padding:5px;font-size:12px;max-height:150px;overflow:auto;";
-document.body.appendChild(logDiv);
+/* =========================================================
+   PANEL DE DEPURACIÓN - muestra logs y errores en pantalla
+========================================================= */
+(function() {
+  const logDiv = document.createElement("div");
+  logDiv.id = "debug-panel";
+  logDiv.style.cssText = `
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    max-height:200px;
+    overflow:auto;
+    background:#111;
+    color:#0f0;
+    font-size:12px;
+    padding:5px;
+    z-index:99999;
+    font-family: monospace;
+    white-space: pre-wrap;
+  `;
+  document.body.appendChild(logDiv);
 
-const oldLog = console.log;
-console.log = (...args) => {
-  oldLog(...args);
-  logDiv.innerHTML += args.map(a => JSON.stringify(a)).join(" ") + "<br>";
-};
+  function printToPanel(prefix, args, color="") {
+    const msg = args.map(a => {
+      try {
+        return (typeof a === "object") ? JSON.stringify(a, null, 2) : String(a);
+      } catch (e) {
+        return String(a);
+      }
+    }).join(" ");
+    const line = document.createElement("div");
+    line.style.color = color || "#0f0";
+    line.textContent = `[${prefix}] ${msg}`;
+    logDiv.appendChild(line);
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
+  // Redefinir console.log y console.error
+  const oldLog = console.log;
+  console.log = (...args) => {
+    oldLog(...args);
+    printToPanel("LOG", args, "#0f0");
+  };
+
+  const oldError = console.error;
+  console.error = (...args) => {
+    oldError(...args);
+    printToPanel("ERROR", args, "#f55");
+  };
+
+  // Capturar errores globales
+  window.onerror = function(message, source, lineno, colno, error) {
+    printToPanel("WINDOW ERROR", [`${message} at ${source}:${lineno}:${colno}`], "#f55");
+    if (error && error.stack) {
+      printToPanel("STACK", [error.stack], "#faa");
+    }
+  };
+
+  // Capturar errores en promesas no gestionadas
+  window.addEventListener("unhandledrejection", (event) => {
+    printToPanel("PROMISE ERROR", [event.reason], "#ff0");
+  });
+})();
 
     /* =========================================================
        VARIABLES GLOBALES
