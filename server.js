@@ -31,16 +31,16 @@ app.post("/chat", async (req, res) => {
     }
 
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${HF_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inputs: userMessage }),
-      }
-    );
+  "https://api-inference.huggingface.co/models/bigscience/bloom-560m",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${HF_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ inputs: userMessage }),
+  }
+);
 
     if (!response.ok) {
       const text = await response.text();
