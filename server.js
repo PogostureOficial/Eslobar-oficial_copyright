@@ -57,3 +57,6 @@ app.post("/chat", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
 
+const data = await response.json();
+console.log("Respuesta HF:", data); // 👈 para depuración
+res.json(data);
