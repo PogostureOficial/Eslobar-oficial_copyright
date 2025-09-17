@@ -165,6 +165,7 @@ document.getElementById("btn2").addEventListener("click", function () {
     /* =========================================================
    MENSAJES
 ========================================================= */
+
 async function enviarMensaje() {
   const userText = input.value.trim();
   if (!userText) return;
@@ -191,6 +192,9 @@ async function enviarMensaje() {
   chat.scrollTop = chat.scrollHeight;
 
   try {
+    // 🚀 Log para ver si realmente se lanza la petición
+    console.log("🚀 Llamando a /chat con:", userText);
+
     // 🔗 Llamada al backend (/chat)
     const response = await fetch("/chat", {
       method: "POST",
@@ -199,6 +203,9 @@ async function enviarMensaje() {
     });
 
     const data = await response.json();
+
+    // ✅ Log para ver lo que responde el servidor en crudo
+    console.log("✅ Respuesta cruda del servidor:", data);
 
     if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
 
@@ -213,9 +220,11 @@ async function enviarMensaje() {
     if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
     const botMsg = addBotMessage();
     await typeWriterEffect(botMsg, "Error al conectar con el servidor: " + error.message, 15);
+
+    // ❌ Log extra para depurar errores
+    console.error("❌ Error en enviarMensaje:", error);
   }
 }
-
 
     /* =========================================================
    UTILIDADES EXTRA: Ajuste dinámico en móviles
