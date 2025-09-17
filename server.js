@@ -31,7 +31,7 @@ app.post("/chat", async (req, res) => {
     }
 
     const response = await fetch(
-  "https://api-inference.huggingface.co/models/bigscience/bloom-560m",
+  "https://api-inference.huggingface.co/models/microsoft/phi-1_5",
   {
     method: "POST",
     headers: {
