@@ -35,63 +35,7 @@
 
   <script>
 
-window.addEventListener("DOMContentLoaded", () => {
-  /* =========================================================
-     PANEL DE DEPURACIÓN - centrado en pantalla
-  ========================================================= */
-  const logDiv = document.createElement("div");
-  logDiv.id = "debug-panel";
-  logDiv.style.cssText = `
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    width:90%;
-    height:60%;
-    overflow:auto;
-    background:#111;
-    color:#0f0;
-    font-size:12px;
-    padding:10px;
-    z-index:999999;
-    font-family: monospace;
-    white-space: pre-wrap;
-    border:2px solid #0f0;
-  `;
-  document.body.appendChild(logDiv);
-
-  function printToPanel(prefix, args, color="") {
-    const msg = args.map(a => {
-      try {
-        return (typeof a === "object") ? JSON.stringify(a, null, 2) : String(a);
-      } catch (e) {
-        return String(a);
-      }
-    }).join(" ");
-    const line = document.createElement("div");
-    line.style.color = color || "#0f0";
-    line.textContent = `[${prefix}] ${msg}`;
-    logDiv.appendChild(line);
-    logDiv.scrollTop = logDiv.scrollHeight;
-  }
-
-  // Redefinir console.log y console.error
-  const oldLog = console.log;
-  console.log = (...args) => {
-    oldLog(...args);
-    printToPanel("LOG", args, "#0f0");
-  };
-
-  const oldError = console.error;
-  console.error = (...args) => {
-    oldError(...args);
-    printToPanel("ERROR", args, "#f55");
-  };
-
-  // Capturar errores globales
-  window.onerror
-
-    /* =========================================================
+ =========================================================
        VARIABLES GLOBALES
     ========================================================= */
     const input = document.getElementById('mensaje');
