@@ -1,24 +1,41 @@
-// server.js - Proxy entre tu frontend y Hugging Face
 import express from "express";
 import fetch from "node-fetch";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 app.use(express.json());
 
-// 🔑 El token lo configurarás en Render como variable de entorno
-const HF_TOKEN = process.env.HF_TOKEN;
+// Corregir __dirname en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Ruta POST /chat -> recibe mensaje del frontend y llama a Hugging Face
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, "public")));
+
+// Redirigir "/" a index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Endpoint /chat
+const HF_TOKEN = process.env.HF_TOKEN;
 app.post("/chat", async (req, res) => {
   try {
-    const response = await fetch("https://api-inference.huggingface.co/models/distilgpt2", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${HF_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ inputs: req.body.message })
-    });
+    const userMessage = req.body.message;
+    if (!userMessage) return res.status(400).json({ error: "No se recibió mensaje" });
+
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/distilgpt2",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${HF_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputs: userMessage }),
+      }
+    );
 
     if (!response.ok) {
       const text = await response.text();
@@ -26,12 +43,12 @@ app.post("/chat", async (req, res) => {
     }
 
     const data = await response.json();
-    res.json(data); // 🔙 enviamos al frontend el JSON tal cual
+    res.json(data);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Render usa PORT automáticamente (local: 3000)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
