@@ -1,34 +1,46 @@
-// server.js
+// server.js - Proxy entre frontend y Hugging Face + servir frontend
 import express from "express";
 import fetch from "node-fetch";
-import dotenv from "dotenv";
-
-// Cargar variables de entorno (.env en local o Render en producción)
-dotenv.config();
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const HF_TOKEN = process.env.HF_TOKEN;
-
 app.use(express.json());
 
-// 🔹 Ruta de test
+// Token configurado en Render (Settings -> Environment Variables)
+const HF_TOKEN = process.env.HF_TOKEN;
+// Modelo por defecto (puedes cambiarlo con la variable HF_MODEL en Render)
+const HF_MODEL = process.env.HF_MODEL || "facebook/blenderbot-400M-distill";
+
+// __dirname para ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Servir estáticos desde public/
+app.use(express.static(path.join(__dirname, "public")));
+
+// Servir index.html en la raíz
 app.get("/", (req, res) => {
-  res.send("Servidor funcionando 🚀");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// 🔹 Endpoint de chat
+// Endpoint /chat
 app.post("/chat", async (req, res) => {
+  const userMessage = req.body?.message;
+  console.log("📩 Mensaje recibido en /chat:", userMessage);
+
+  // DEBUG: mostrar que HF_TOKEN existe (solo los primeros 5 chars)
+  console.log("🔑 HF_TOKEN presente:", HF_TOKEN ? (HF_TOKEN.slice(0,5) + "...") : "NO TOKEN");
+  const modelUrl = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
+  console.log("👉 Modelo al que llamo:", modelUrl);
+
+  if (!userMessage) return res.status(400).json({ error: "No se recibió mensaje" });
+  if (!HF_TOKEN) {
+    console.error("⚠️ HF_TOKEN no definido en variables de entorno");
+    return res.status(500).json({ error: "HF_TOKEN no definido en servidor" });
+  }
+
   try {
-    const userMessage = req.body.message;
-    console.log("📩 Mensaje recibido:", userMessage);
-
-    // ⚡ Modelo gratuito y probado
-    const modelUrl = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill";
-
-    console.log("🔑 HF_TOKEN:", HF_TOKEN ? HF_TOKEN.slice(0, 5) + "..." : "NO TOKEN");
-    console.log("👉 Modelo al que llamo:", modelUrl);
-
     const response = await fetch(modelUrl, {
       method: "POST",
       headers: {
@@ -39,32 +51,33 @@ app.post("/chat", async (req, res) => {
       body: JSON.stringify({ inputs: userMessage }),
     });
 
-    // Recibir como texto (por si viene HTML)
+    // Leemos como texto para poder ver si nos devuelven HTML
     const text = await response.text();
-    console.log("📡 Respuesta cruda:", text);
+    console.log("📡 Respuesta cruda (primeros 1000 chars):", text.slice(0, 1000).replace(/\s+/g,' '));
 
+    // Intentamos parsear JSON; si no, devolvemos el texto crudo para depuración
     let data;
     try {
       data = JSON.parse(text);
     } catch (err) {
-      console.error("❌ No se pudo parsear JSON, parece HTML");
-      return res.status(500).json({
-        reply: "⚠️ La API devolvió HTML en vez de JSON. Revisa la URL o el token.",
-      });
+      console.error("❌ No se pudo parsear JSON desde HuggingFace; respuesta fue HTML o texto.");
+      return res.status(502).json({ error: "La API devolvió HTML/texto en vez de JSON", details: text.slice(0,2000) });
     }
 
-    console.log("✅ Respuesta HuggingFace (JSON):", data);
+    if (!response.ok) {
+      console.error("❌ Error desde HuggingFace (JSON):", data);
+      return res.status(response.status).json({ error: data });
+    }
 
-    const botReply =
-      data[0]?.generated_text || data.generated_text || "No entendí.";
-    res.json({ reply: botReply });
-  } catch (error) {
-    console.error("❌ Error en el servidor:", error);
-    res.status(500).json({ reply: "Error en el servidor." });
+    console.log("✅ Respuesta JSON de HuggingFace:", data);
+    const reply = data?.[0]?.generated_text || data?.generated_text || JSON.stringify(data);
+    return res.json({ reply });
+  } catch (err) {
+    console.error("🔥 Error interno en /chat:", err);
+    return res.status(500).json({ error: "Error en servidor", details: err.message });
   }
 });
 
-// 🔹 Levantar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-});
+// Puerto
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
