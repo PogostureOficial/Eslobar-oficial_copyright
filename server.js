@@ -1,70 +1,58 @@
-// server.js - Proxy entre frontend y Hugging Face + servir frontend
+// server.js
 import express from "express";
 import fetch from "node-fetch";
-import path from "path";
-import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
-app.use(express.json());
-
-// 🔑 Token de Hugging Face desde variable de entorno (Render)
+const PORT = process.env.PORT || 3000;
 const HF_TOKEN = process.env.HF_TOKEN;
 
-// 🔹 Corregir __dirname en ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+app.use(express.json());
 
-// 🔹 Servir archivos estáticos desde public/
-app.use(express.static(path.join(__dirname, "public")));
-
-// 🔹 Redirigir "/" a index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// 🔹 Endpoint /chat
 app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
-    if (!userMessage) {
-      return res.status(400).json({ error: "No se recibió mensaje" });
-    }
+    console.log("📩 Mensaje recibido:", userMessage);
 
-    console.log("📩 Mensaje recibido en /chat:", userMessage);
+    // Endpoint correcto de inference
+    const modelUrl = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill";
 
-    // 🔑 Logs de depuración
     console.log("🔑 HF_TOKEN:", HF_TOKEN ? HF_TOKEN.slice(0, 5) + "..." : "NO TOKEN");
-    console.log("👉 Modelo al que llamo:", "https://api-inference.huggingface.co/models/distilgpt2");
+    console.log("👉 Modelo al que llamo:", modelUrl);
 
-    // 🚀 Llamada al modelo de Hugging Face
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/facebook/bart-large-cnn", // ✅ Modelo gratuito y activo
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${HF_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inputs: userMessage }),
-      }
-    );
+    const response = await fetch(modelUrl, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${HF_TOKEN}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json",   // 👈 fuerza a JSON
+      },
+      body: JSON.stringify({ inputs: userMessage }),
+    });
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("❌ Error desde HuggingFace:", text);
-      return res.status(response.status).json({ error: text });
+    const text = await response.text();
+    console.log("📡 Respuesta cruda:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error("❌ No se pudo parsear JSON, parece HTML");
+      return res.status(500).json({ reply: "La API devolvió HTML en vez de JSON. Revisa la URL o el token." });
     }
 
-    const data = await response.json();
-    console.log("✅ Respuesta HuggingFace:", data);
-    res.json(data);
+    console.log("✅ Respuesta HuggingFace (JSON):", data);
 
-  } catch (err) {
-    console.error("💥 Error en /chat:", err.message);
-    res.status(500).json({ error: err.message });
+    const botReply = data[0]?.generated_text || data.generated_text || "No entendí.";
+    res.json({ reply: botReply });
+
+  } catch (error) {
+    console.error("❌ Error en el servidor:", error);
+    res.status(500).json({ reply: "Error en el servidor." });
   }
 });
 
-// 🔹 Puerto (Render usa process.env.PORT)
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+});
