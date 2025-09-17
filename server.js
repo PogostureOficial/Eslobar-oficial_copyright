@@ -31,7 +31,7 @@ app.post("/chat", async (req, res) => {
     }
 
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/gpt2", // 👈 prueba con otro modelo más estable si da error
+      "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill",
       {
         method: "POST",
         headers: {
