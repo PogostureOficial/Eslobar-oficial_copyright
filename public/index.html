@@ -196,11 +196,11 @@ async function enviarMensaje() {
     console.log("🚀 Llamando a /chat con:", userText);
 
     // 🔗 Llamada al backend (/chat)
-    const response = await fetch("/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userText })
-    });
+    const response = await fetch("https://eslobar-oficial-copyright.onrender.com/chat", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: userText })
+});
 
     const data = await response.json();
 
