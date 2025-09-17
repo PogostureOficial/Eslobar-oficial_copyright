@@ -34,6 +34,18 @@
 </button>
 
   <script>
+
+// Redirigir console.log a un div en la página
+const logDiv = document.createElement("div");
+logDiv.style.cssText = "background:#111;color:#0f0;padding:5px;font-size:12px;max-height:150px;overflow:auto;";
+document.body.appendChild(logDiv);
+
+const oldLog = console.log;
+console.log = (...args) => {
+  oldLog(...args);
+  logDiv.innerHTML += args.map(a => JSON.stringify(a)).join(" ") + "<br>";
+};
+
     /* =========================================================
        VARIABLES GLOBALES
     ========================================================= */
