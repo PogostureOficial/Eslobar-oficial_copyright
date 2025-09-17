@@ -162,72 +162,59 @@ document.getElementById("btn2").addEventListener("click", function () {
 
 
     /* =========================================================
-       MENSAJES
-    ========================================================= */
-    async function enviarMensaje() {
-      const userText = input.value.trim();
-      if (!userText) return;
+   MENSAJES
+========================================================= */
+async function enviarMensaje() {
+  const userText = input.value.trim();
+  if (!userText) return;
 
-      // Ocultar título y agregar mensaje usuario
-      titulo.style.opacity = 0;
-      const userMsg = document.createElement("div");
-      userMsg.className = "message user";
-      userMsg.innerHTML = parseBold(userText);
-      chat.appendChild(userMsg);
+  // Ocultar título y agregar mensaje usuario
+  titulo.style.opacity = 0;
+  const userMsg = document.createElement("div");
+  userMsg.className = "message user";
+  userMsg.innerHTML = parseBold(userText);
+  chat.appendChild(userMsg);
 
-      // reset input
-      input.value = "";
-      input.style.height = "auto";
-      transitionToBtn1();
-      previousHasText = false;
+  // reset input
+  input.value = "";
+  input.style.height = "auto";
+  transitionToBtn1();
+  previousHasText = false;
 
-      // Loading
-      const loadingMsg = document.createElement("div");
-      loadingMsg.className = "message bot loading";
-      loadingMsg.innerHTML = `<span></span>
-        <video src="anim1.mp4" autoplay loop muted playsinline width="40"></video>`;
-      chat.appendChild(loadingMsg);
-      chat.scrollTop = chat.scrollHeight;
+  // Loading
+  const loadingMsg = document.createElement("div");
+  loadingMsg.className = "message bot loading";
+  loadingMsg.innerHTML = `<span></span>
+    <video src="anim1.mp4" autoplay loop muted playsinline width="40"></video>`;
+  chat.appendChild(loadingMsg);
+  chat.scrollTop = chat.scrollHeight;
 
-     // =============================
-// Llamada a Hugging Face API (prueba rápida)
-// =============================
-const HF_TOKEN = "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"; // tu token de Hugging Face
-
-try {
-  const response = await fetch(
-    "https://api-inference.huggingface.co/models/distilgpt2",
-    {
+  try {
+    // 🔗 Llamada al backend (/chat)
+    const response = await fetch("/chat", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${HF_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ inputs: userText })
-    }
-  );
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userText })
+    });
 
-  if (!response.ok) {
+    const data = await response.json();
+
+    if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
+
+    // Extraer respuesta
+    const reply = data?.[0]?.generated_text || data?.generated_text || data?.error || "No hubo respuesta.";
+
+    // Mostrar mensaje del bot
+    const botMsg = addBotMessage();
+    await typeWriterEffect(botMsg, reply, 15);
+
+  } catch (error) {
     if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
     const botMsg = addBotMessage();
-    await typeWriterEffect(botMsg, `Error ${response.status}: ${response.statusText}`, 15);
-    return;
+    await typeWriterEffect(botMsg, "Error al conectar con el servidor: " + error.message, 15);
   }
-
-  const data = await response.json().catch(() => null);
-  if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-
-  // Hugging Face devuelve un array con "generated_text"
-  const reply = data?.[0]?.generated_text || "No hubo respuesta de la IA.";
-  const botMsg = addBotMessage();
-  await typeWriterEffect(botMsg, reply, 15);
-
-} catch (error) {
-  if (chat.contains(loadingMsg)) chat.removeChild(loadingMsg);
-  const botMsg = addBotMessage();
-  await typeWriterEffect(botMsg, "Error al conectar con la IA: " + error.message, 15);
 }
-    }
+
 
     /* =========================================================
    UTILIDADES EXTRA: Ajuste dinámico en móviles
@@ -249,3 +236,4 @@ const toggleBtn = document.getElementById("toggleViewBtn");
   </script>
 </body>
 </html>
+
