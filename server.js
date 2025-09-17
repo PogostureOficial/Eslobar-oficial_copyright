@@ -26,15 +26,14 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
-    console.log("📩 Mensaje recibido en /chat:", userMessage);
-
     if (!userMessage) {
-      console.log("⚠️ No se recibió mensaje en la request");
       return res.status(400).json({ error: "No se recibió mensaje" });
     }
 
+    console.log("📩 Mensaje recibido en /chat:", userMessage);
+
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "https://api-inference.huggingface.co/models/distilgpt2", // ✅ Modelo gratuito y activo
       {
         method: "POST",
         headers: {
@@ -53,8 +52,8 @@ app.post("/chat", async (req, res) => {
 
     const data = await response.json();
     console.log("✅ Respuesta HuggingFace:", data);
-
     res.json(data);
+
   } catch (err) {
     console.error("💥 Error en /chat:", err.message);
     res.status(500).json({ error: err.message });
@@ -63,4 +62,4 @@ app.post("/chat", async (req, res) => {
 
 // 🔹 Puerto (Render usa process.env.PORT)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
